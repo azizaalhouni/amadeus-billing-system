@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amadeus PNR Recall Report Converter</title>
+    <style>
+        body {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .upload-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            text-align: center;
+            background: #f9f9f9;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #007cba;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #007cba;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .file-label:hover {
+            background: #005a87;
+        }
+
+        .upload-hint {
+            margin-top: 1rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .text-input-section {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .text-input-section summary {
+            cursor: pointer;
+            font-weight: 500;
+            margin-bottom: 1rem;
+        }
+
+        .text-area {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.9rem;
+            resize: vertical;
+            margin-bottom: 1rem;
+            box-sizing: border-box;
+        }
+
+        .process-btn, .test-btn, .convert-btn {
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin: 0.5rem;
+        }
+
+        .process-btn {
+            background: #17a2b8;
+            color: white;
+        }
+
+        .process-btn:hover {
+            background: #138496;
+        }
+
+        .test-btn {
+            background: #6c757d;
+            color: white;
+        }
+
+        .test-btn:hover {
+            background: #5a6268;
+        }
+
+        .convert-btn {
+            background: #28a745;
+            color: white;
+        }
+
+        .convert-btn:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .convert-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            text-align: left;
+        }
+
+        .file-info pre {
+            background: #f8f9fa;
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            overflow-x: auto;
+            margin-top: 0.5rem;
+        }
+
+        .results-section {
+            margin-top: 2rem;
+        }
+
+        .summary {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #f0f8ff;
+            border-radius: 6px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #e1f5fe;
+            padding: 4px 8px;
+            margin: 2px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            border: 1px solid #b3e5fc;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .office-id {
+            background: #e7f3ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 600;
+        }
+
+        .summary-section {
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #28a745;
+        }
+
+        .summary-section h3 {
+            color: #28a745;
+            margin-top: 0;
+        }
+
+        .detailed-section {
+            margin-top: 2rem;
+        }
+
+        .detailed-section summary {
+            cursor: pointer;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .detailed-section summary h3 {
+            display: inline;
+            margin: 0;
+        }
+
+        .total-count {
+            background: #28a745;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .note {
+            color: #666;
+            font-style: italic;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            table {
+                font-size: 0.9rem;
+            }
+            
+            th, td {
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav style="
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+padding: 1rem 0;
+margin: -2rem -2rem 2rem -2rem;
+box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+    <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
+       Amadeus Reports Processing Suite
+    </h2>
+    <div style="
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+    ">
+        <a href="ATC&MPT.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+           ATC & MPT Reports
+        </a>
+        <a href="wep.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+           WEP Reports
+        </a>
+        <a href="pnr.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+           PNR Reports
+        </a>
+        <a href="mpe.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+             MPE Reports
+        </a>
+        <a href="invoice.html" style="
+            background: rgba(255,255,255,0.4);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.6);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        " onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.4)'">
+             Consolidator
+        </a>
+    </div>
+    <p style="
+        color: rgba(255,255,255,0.9);
+        text-align: center;
+        margin: 1rem 0 0 0;
+        font-size: 0.85rem;
+    ">
+        Process individual reports, then use the Consolidator to merge all Excel outputs
+    </p>
+</div>
+</nav>
+    <div class="container">
+        <h1>Amadeus PNR Recall Report Converter</h1>
+        <p class="description">Upload your Amadeus PNR Recall report to extract office numbers and convert to Excel</p>
+
+        <div class="upload-section" id="uploadSection">
+            <input
+                type="file"
+                accept=".txt,.csv,.dat,text/plain"
+                id="fileInput"
+                class="file-input"
+            />
+            <label for="fileInput" class="file-label">
+                Choose PNR Report File
+            </label>
+            
+            <p class="upload-hint">
+                Or drag and drop your file here<br>
+                <small>Supports PNR Recall reports (BIDARPNCBI01)</small>
+            </p>
+            
+            <!-- Alternative text input method -->
+            <details class="text-input-section">
+                <summary>Alternative: Paste text directly</summary>
+                <textarea
+                    id="textArea"
+                    placeholder="Paste your Amadeus PNR Recall report data here..."
+                    rows="10"
+                    class="text-area"
+                ></textarea>
+                <button id="processBtn" class="process-btn">
+                    Process Pasted Data
+                </button>
+            </details>
+
+            <div id="fileInfo" class="file-info" style="display: none;">
+                <p>✅ Data loaded successfully!</p>
+                <p id="contentLength"></p>
+                <details>
+                    <summary>View first 500 characters</summary>
+                    <pre id="contentPreview"></pre>
+                </details>
+            </div>
+            
+            <!-- Test button -->
+            <button id="testBtn" class="test-btn">
+                Test with Sample PNR Data
+            </button>
+        </div>
+
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h2>Processed Data Preview</h2>
+            <p id="recordCount"></p>
+            
+            <div class="summary">
+                <h3>Office Prefix Summary:</h3>
+                <div id="prefixSummary"></div>
+            </div>
+
+            <!-- Summary Table by Office ID -->
+            <div class="summary-section">
+                <h3>📊 Summary by Office ID (Grouped & Summed)</h3>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Office ID</th>
+                                <th>Total Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="summaryTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Detailed Table -->
+            <details class="detailed-section">
+                <summary><h3>📋 Detailed View (Individual Records)</h3></summary>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Row</th>
+                                <th>Office ID</th>
+                                <th>Count</th>
+                                <th>Date</th>
+                                <th>Session</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                        </tbody>
+                    </table>
+                    <p id="tableNote" class="note"></p>
+                </div>
+            </details>
+
+            <button id="convertBtn" class="convert-btn">
+                Convert to Excel
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let csvData = '';
+        let processedData = [];
+        let isProcessing = false;
+
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const textArea = document.getElementById('textArea');
+        const processBtn = document.getElementById('processBtn');
+        const testBtn = document.getElementById('testBtn');
+        const convertBtn = document.getElementById('convertBtn');
+        const uploadSection = document.getElementById('uploadSection');
+        const fileInfo = document.getElementById('fileInfo');
+        const resultsSection = document.getElementById('resultsSection');
+        const contentLength = document.getElementById('contentLength');
+        const contentPreview = document.getElementById('contentPreview');
+        const recordCount = document.getElementById('recordCount');
+        const prefixSummary = document.getElementById('prefixSummary');
+        const summaryTableBody = document.getElementById('summaryTableBody');
+        const tableBody = document.getElementById('tableBody');
+        const tableNote = document.getElementById('tableNote');
+
+        // Function to extract office info for PNR format
+        function extractOfficeInfo(line) {
+            console.log('Processing PNR line:', line);
+            
+            // PNR Pattern: NLB QZLLY2158AI20240404ISVFUPNRR 1 LY
+            // Office code comes right after NLB, count comes before LY
+            const officeMatch = line.match(/NLB\s+([A-Z]{5}[A-Z0-9]+)/);
+            
+            if (officeMatch) {
+                const fullOfficeCode = officeMatch[1]; // e.g., QZLLY2158AI20240404ISVFUPNRR
+                
+                // Extract office ID (first 9 characters: 5 letters + 4 digits)
+                const officeId = fullOfficeCode.substring(0, 9); // QZLLY2158
+                
+                // Get the count before "LY"
+                const countMatch = line.match(/(\d+)\s+LY\s*$/);
+                const transactionCount = countMatch ? countMatch[1] : '';
+                
+                // Extract date (8 digits after office prefix)
+                const dateMatch = fullOfficeCode.match(/^[A-Z]{5}[A-Z0-9]{2}(\d{8})/);
+                const date = dateMatch ? dateMatch[1] : '';
+                
+                // Extract session identifier
+                const sessionMatch = fullOfficeCode.match(/\d{8}([A-Z]+)/);
+                const session = sessionMatch ? sessionMatch[1] : '';
+                
+                console.log('PNR Extracted:', {
+                    fullOfficeCode,
+                    officeId,
+                    transactionCount,
+                    date,
+                    session
+                });
+                
+                return {
+                    officeId: officeId,
+                    transactionCount: transactionCount,
+                    date: date,
+                    session: session
+                };
+            }
+            
+            console.log('No PNR office code found');
+            return {
+                officeId: '',
+                transactionCount: '',
+                date: '',
+                session: ''
+            };
+        }
+
+        // Process the uploaded data
+        function processCsv(content) {
+            console.log('Processing PNR data, length:', content.length);
+            
+            const allLines = content.split('\n');
+            console.log('Total lines:', allLines.length);
+            
+            // Filter out header/footer lines
+            const dataLines = allLines.filter(line => {
+                const trimmed = line.trim();
+                return trimmed && 
+                       !trimmed.startsWith('*') && 
+                       !trimmed.startsWith('COMPANY') &&
+                       !trimmed.startsWith('REPORT') &&
+                       !trimmed.startsWith('DESTIN') &&
+                       !trimmed.startsWith('PERIOD') &&
+                       !trimmed.startsWith('FREQCY') &&
+                       !trimmed.startsWith('NBRECS');
+            });
+            
+            console.log('Data lines after filtering:', dataLines.length);
+            
+            if (dataLines.length === 0) {
+                console.error('No data lines found after filtering');
+                return [];
+            }
+            
+            const processed = dataLines.map((line, index) => {
+                const officeInfo = extractOfficeInfo(line);
+                
+                return {
+                    rowNumber: index + 1,
+                    originalLine: line.trim(),
+                    officeId: officeInfo.officeId,
+                    transactionCount: officeInfo.transactionCount,
+                    date: officeInfo.date,
+                    session: officeInfo.session
+                };
+            });
+            
+            console.log('Processed', processed.length, 'PNR records');
+            return processed;
+        }
+
+        // Group data by Office ID and sum counts
+        function groupByOfficeId(data) {
+            const grouped = {};
+            
+            data.forEach(row => {
+                if (row.officeId) {
+                    if (!grouped[row.officeId]) {
+                        grouped[row.officeId] = {
+                            officeId: row.officeId,
+                            totalCount: 0
+                        };
+                    }
+                    
+                    const count = parseInt(row.transactionCount) || 0;
+                    grouped[row.officeId].totalCount += count;
+                }
+            });
+            
+            return Object.values(grouped).sort((a, b) => b.totalCount - a.totalCount);
+        }
+
+        // Update display with processed data
+        function updateDisplay() {
+            if (processedData.length === 0) {
+                resultsSection.style.display = 'none';
+                return;
+            }
+
+            resultsSection.style.display = 'block';
+            recordCount.textContent = `Found ${processedData.length} PNR records`;
+
+            // Update prefix summary
+            const prefixCounts = processedData.reduce((acc, row) => {
+                if (row.officeId) {
+                    const prefix = row.officeId.substring(0, 5);
+                    acc[prefix] = (acc[prefix] || 0) + 1;
+                }
+                return acc;
+            }, {});
+
+            prefixSummary.innerHTML = Object.entries(prefixCounts)
+                .map(([prefix, count]) => `<span class="tag">${prefix}: ${count}</span>`)
+                .join('');
+
+            // Update summary table
+            const groupedData = groupByOfficeId(processedData);
+            summaryTableBody.innerHTML = groupedData.map(row => `
+                <tr>
+                    <td><span class="office-id">${row.officeId}</span></td>
+                    <td><span class="total-count">${row.totalCount}</span></td>
+                </tr>
+            `).join('');
+
+            // Update detailed table
+            const rowsToShow = processedData.slice(0, 20);
+            tableBody.innerHTML = rowsToShow.map(row => `
+                <tr>
+                    <td>${row.rowNumber}</td>
+                    <td><span class="office-id">${row.officeId}</span></td>
+                    <td><strong>${row.transactionCount}</strong></td>
+                    <td>${row.date}</td>
+                    <td><span class="highlight">${row.session}</span></td>
+                </tr>
+            `).join('');
+
+            if (processedData.length > 20) {
+                tableNote.textContent = `Showing first 20 rows of ${processedData.length} total records`;
+            } else {
+                tableNote.textContent = '';
+            }
+        }
+
+        // Handle file upload
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 10 * 1024 * 1024) {
+                alert('File too large! Please select a file smaller than 10MB.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                csvData = e.target.result;
+                processedData = processCsv(csvData);
+                
+                fileInfo.style.display = 'block';
+                contentLength.textContent = `Content length: ${csvData.length} characters`;
+                contentPreview.textContent = csvData.substring(0, 500) + '...';
+                
+                updateDisplay();
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        // Handle drag and drop
+        function handleDrop(event) {
+            event.preventDefault();
+            const files = event.dataTransfer.files;
+            if (files.length > 0) {
+                fileInput.files = files;
+                handleFileUpload({ target: { files: [files[0]] } });
+            }
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
+
+        // Convert to Excel
+        async function convertToExcel() {
+            if (processedData.length === 0) {
+                alert('Please upload and process data first');
+                return;
+            }
+
+            isProcessing = true;
+            convertBtn.textContent = 'Converting...';
+            convertBtn.disabled = true;
+
+            try {
+                const groupedData = groupByOfficeId(processedData);
+                
+                const summaryData = groupedData.map(row => ({
+                    'Office ID': row.officeId,
+                    'Total Count': row.totalCount
+                }));
+
+                const detailData = processedData.map(row => ({
+                    'Row Number': row.rowNumber,
+                    'Office ID': row.officeId,
+                    'Transaction Count': parseInt(row.transactionCount),
+                    'Date': row.date,
+                    'Session': row.session,
+                    'Original Line': row.originalLine
+                }));
+
+                const wb = XLSX.utils.book_new();
+                
+                const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+                XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary by Office ID');
+                
+                const detailWs = XLSX.utils.json_to_sheet(detailData);
+                XLSX.utils.book_append_sheet(wb, detailWs, 'Detailed Records');
+                
+                XLSX.writeFile(wb, 'amadeus_PNR_summary.xlsx');
+                
+            } catch (error) {
+                console.error('Error converting to Excel:', error);
+                alert('Error converting to Excel: ' + error.message);
+            } finally {
+                isProcessing = false;
+                convertBtn.textContent = 'Convert to Excel';
+                convertBtn.disabled = false;
+            }
+        }
+
+        // Event listeners
+        fileInput.addEventListener('change', handleFileUpload);
+        uploadSection.addEventListener('drop', handleDrop);
+        uploadSection.addEventListener('dragover', handleDragOver);
+
+        processBtn.addEventListener('click', () => {
+            const text = textArea.value.trim();
+            if (text) {
+                csvData = text;
+                processedData = processCsv(csvData);
+                
+                fileInfo.style.display = 'block';
+                contentLength.textContent = `Content length: ${csvData.length} characters`;
+                contentPreview.textContent = csvData.substring(0, 500) + '...';
+                
+                updateDisplay();
+            } else {
+                alert('Please paste some data first');
+            }
+        });
+
+        // Test with your exact sample data
+        testBtn.addEventListener('click', () => {
+            const testData = `*COMPANY = AMADEUS IT GROUP SA
+*REPORT  = BIDARPNCBI01       PNR RECALL MAIN ABI VERSION 1
+*DESTIN  = NLI Amadeus Libya,Technical Services JV
+*PERIOD  = 01APR2024 TO 30APR2024
+*FREQCY  = M
+NLB                QZLLY2158AI20240404ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240407ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240406ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240418ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240418ISVFUPNRR                   1 LY
+NLB                TIPLY2293AI20240417ISVFUPNRR                   1 LY
+NLB                TIPLY2293AI20240428ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240404ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240409ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240420ISVFUPNRR                   1 LY
+NLB                QZLLY2158AI20240423ISVFUPNRR                   1 LY
+NLB                TIPLY2293AI20240408ISVFUPNRR                   1 LY
+NLB                TIPLY2293AI20240417ISVFUPNRR                   1 LY`;
+            
+            csvData = testData;
+            processedData = processCsv(testData);
+            
+            fileInfo.style.display = 'block';
+            contentLength.textContent = `Content length: ${csvData.length} characters`;
+            contentPreview.textContent = csvData.substring(0, 500) + '...';
+            
+            updateDisplay();
+        });
+
+        convertBtn.addEventListener('click', convertToExcel);
+
+        textArea.addEventListener('input', () => {
+            const text = textArea.value.trim();
+            if (text) {
+                csvData = text;
+                processedData = processCsv(csvData);
+                updateDisplay();
+            }
+        });
+    </script>
+</body>
+</html>

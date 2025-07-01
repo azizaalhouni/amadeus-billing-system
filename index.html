@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amadeus Reports Processing Suite</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .container {
+            background: white;
+            padding: 3rem;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 800px;
+            margin: 2rem;
+        }
+        h1 {
+            color: #333;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+            margin-bottom: 3rem;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .tool-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-decoration: none;
+            transition: transform 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            text-decoration: none;
+            color: white;
+        }
+        .tool-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .tool-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .tool-desc {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        .consolidator-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            grid-column: 1 / -1;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .workflow {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-top: 2rem;
+        }
+        .workflow h3 {
+            color: #333;
+            margin-bottom: 1rem;
+        }
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .step {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            flex: 1;
+            min-width: 150px;
+        }
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 0.5rem;
+            font-weight: bold;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 2rem 1rem; }
+            h1 { font-size: 2rem; }
+            .workflow-steps { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Amadeus Reports Processing Suite</h1>
+        <p class="subtitle">Automated solution for Amadeus billing reports processing</p>
+        
+        <div class="tools-grid">
+            <a href="ATC&MPT.html" class="tool-card">
+                <div class="tool-title">ATC & MPT</div>
+                <div class="tool-desc">Process ticket changer reports</div>
+            </a>
+            
+            <a href="wep.html" class="tool-card">
+                <div class="tool-title">WEP Reports</div>
+                <div class="tool-desc">Web services transactions</div>
+            </a>
+            
+            <a href="pnr.html" class="tool-card">
+                <div class="tool-title">PNR Reports</div>
+                <div class="tool-desc">PNR recall processing</div>
+            </a>
+            
+            <a href="mpe.html" class="tool-card">
+                <div class="tool-title">MPE Reports</div>
+                <div class="tool-desc">Low fare search reports</div>
+            </a>
+            
+            <a href="invoice.html" class="tool-card consolidator-card">
+                <div class="tool-title">Excel Consolidator</div>
+                <div class="tool-desc">Merge all reports into master billing file</div>
+            </a>
+        </div>
+        
+        <div class="workflow">
+            <h3>How to Use</h3>
+            <div class="workflow-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div>Process individual reports</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div>Download Excel files</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div>Use Consolidator</div>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div>Get master billing file</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
