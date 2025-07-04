@@ -32,6 +32,44 @@
             margin-bottom: 2rem;
         }
 
+        .cost-input-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cost-input-section h3 {
+            color: #1976d2;
+            margin-top: 0;
+            margin-bottom: 1rem;
+        }
+
+        .cost-input {
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1rem;
+            font-weight: 500;
+            text-align: center;
+            width: 150px;
+            margin: 0 10px;
+        }
+
+        .cost-input:focus {
+            outline: none;
+            border-color: #2196f3;
+            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+        }
+
+        .currency-symbol {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
         .upload-section {
             margin: 2rem 0;
             padding: 2rem;
@@ -253,6 +291,15 @@
             font-size: 1.1em;
         }
 
+        .total-cost {
+            background: #ff6f00;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
         .service-type {
             background: #17a2b8;
             color: white;
@@ -293,6 +340,9 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
        Amadeus Reports Processing Suite
     </h2>
+    <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem; direction: rtl;">
+   مجموعة معالجة تقارير أماديوس
+</h2>
     <div style="
         display: flex;
         flex-wrap: wrap;
@@ -369,7 +419,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         " onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
            onmouseout="this.style.background='rgba(255,255,255,0.4)'">
-             Consolidator
+             Consolidator الموحد
         </a>
     </div>
     <p style="
@@ -380,11 +430,49 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
     ">
         Process individual reports, then use the Consolidator to merge all Excel outputs
     </p>
+    <p style="
+        color: rgba(255,255,255,0.9);
+        text-align: center;
+        margin: 1rem 0 0 0;
+        font-size: 0.85rem;
+        direction: rtl;
+    ">
+        قم بمعالجة التقارير الفردية، ثم استخدم الموحد لدمج جميع مخرجات Excel
+</p>
 </div>
 </nav>
     <div class="container">
         <h1>Amadeus Web Services Transactions Report Converter</h1>
         <p class="description">Upload your Amadeus Web Services Transactions (WEP) report to extract office numbers and convert to Excel</p>
+        <p class="description" style="direction: rtl;">قم برفع ملف تقرير WEP  بـ Amadeus لاستخراج أرقام المكاتب وتحويلها إلى Excel</p>
+
+        <!-- Cost Input Section -->
+        <div class="cost-input-section">
+            <h3>💰 Cost Calculation Settings</h3>
+            <h3>💰 إعدادات حساب التكلفة</h3>
+
+            <label for="costPerTransaction">
+                <span class="currency-symbol">$</span>
+                <input 
+                    type="number" 
+                    id="costPerTransaction" 
+                    class="cost-input" 
+                    placeholder="0.00" 
+                    step="0.01"
+                    min="0"
+                    value="0.10"
+                />
+                <span style="margin-left: 10px; color: #666;">per transaction</span>
+                <span style="margin-right: 10px; color: #666;">لكل معاملة</span>
+
+            </label>
+            <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9rem;">
+                Enter the cost per transaction to calculate total costs in the Excel output
+            </p>
+             <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9rem; direction: rtl;">
+    أدخل التكلفة لكل معاملة لحساب التكاليف الإجمالية في مخرجات Excel
+</p>
+        </div>
 
         <div class="upload-section" id="uploadSection">
             <input
@@ -394,13 +482,17 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 class="file-input"
             />
             <label for="fileInput" class="file-label">
-                Choose WEP Report File
+                Choose WEP Report File اختر ملف تقرير
             </label>
             
             <p class="upload-hint">
                 Or drag and drop your file here<br>
                 <small>Supports Web Services Transactions reports (BIDAWSTCBI01)</small>
             </p>
+            <p class="upload-hint" style="direction: rtl;">
+    أو اسحب وأفلت ملفك هنا<br>
+    <small>يدعم تقارير معاملات خدمات الويب (BIDAWSTCBI01)</small>
+</p>
             
             <!-- Alternative text input method -->
             <details class="text-input-section">
@@ -412,12 +504,13 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     class="text-area"
                 ></textarea>
                 <button id="processBtn" class="process-btn">
-                    Process Pasted Data
+                    Process Pasted Data معالجة البيانات المُلصقة
                 </button>
             </details>
 
             <div id="fileInfo" class="file-info" style="display: none;">
                 <p>✅ Data loaded successfully!</p>
+                <p style="direction: rtl;">✅ تم تحميل البيانات بنجاح!</p>
                 <p id="contentLength"></p>
                 <details>
                     <summary>View first 500 characters</summary>
@@ -427,7 +520,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             
             <!-- Test button -->
             <button id="testBtn" class="test-btn">
-                Test with Sample WEP Data
+                Test with Sample WEP Data     اختبار مع بيانات التجريبية
+
             </button>
         </div>
 
@@ -449,6 +543,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                             <tr>
                                 <th>Office ID</th>
                                 <th>Total Transactions</th>
+                                <th>Cost per Transaction</th>
+                                <th>Total Cost</th>
                             </tr>
                         </thead>
                         <tbody id="summaryTableBody">
@@ -480,7 +576,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             </details>
 
             <button id="convertBtn" class="convert-btn">
-                Convert to Excel
+                Convert to Excel تحويل إلى 
+
             </button>
         </div>
     </div>
@@ -497,6 +594,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         const processBtn = document.getElementById('processBtn');
         const testBtn = document.getElementById('testBtn');
         const convertBtn = document.getElementById('convertBtn');
+        const costPerTransactionInput = document.getElementById('costPerTransaction');
         const uploadSection = document.getElementById('uploadSection');
         const fileInfo = document.getElementById('fileInfo');
         const resultsSection = document.getElementById('resultsSection');
@@ -621,6 +719,12 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             return Object.values(grouped).sort((a, b) => b.totalTransactions - a.totalTransactions);
         }
 
+        // Get cost per transaction
+        function getCostPerTransaction() {
+            const cost = parseFloat(costPerTransactionInput.value) || 0;
+            return cost;
+        }
+
         // Update display with processed data
         function updateDisplay() {
             if (processedData.length === 0) {
@@ -644,14 +748,21 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 .map(([prefix, count]) => `<span class="tag">${prefix}: ${count}</span>`)
                 .join('');
 
-            // Update summary table
+            // Update summary table with cost calculations
             const groupedData = groupByOfficeId(processedData);
-            summaryTableBody.innerHTML = groupedData.map(row => `
+            const costPerTransaction = getCostPerTransaction();
+            
+            summaryTableBody.innerHTML = groupedData.map(row => {
+                const totalCost = (row.totalTransactions * costPerTransaction).toFixed(2);
+                return `
                 <tr>
                     <td><span class="office-id">${row.officeId}</span></td>
                     <td><span class="total-count">${row.totalTransactions.toLocaleString()}</span></td>
+                    <td>$${costPerTransaction.toFixed(2)}</td>
+                    <td><span class="total-cost">$${totalCost}</span></td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
 
             // Update detailed table
             const rowsToShow = processedData.slice(0, 20);
@@ -724,11 +835,18 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 
             try {
                 const groupedData = groupByOfficeId(processedData);
+                const costPerTransaction = getCostPerTransaction();
                 
-                const summaryData = groupedData.map(row => ({
-                    'Office ID': row.officeId,
-                    'Total Transactions': row.totalTransactions
-                }));
+                // Summary sheet data with cost calculations
+                const summaryData = groupedData.map(row => {
+                    const totalCost = (row.totalTransactions * costPerTransaction).toFixed(2);
+                    return {
+                        'Office ID': row.officeId,
+                        'Total Transactions': row.totalTransactions,
+                        'Cost per Transaction': `$${costPerTransaction.toFixed(2)}`,
+                        'Total Cost': `$${totalCost}`
+                    };
+                });
 
                 const detailData = processedData.map(row => ({
                     'Row Number': row.rowNumber,
@@ -743,12 +861,12 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 const wb = XLSX.utils.book_new();
                 
                 const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-                XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary by Office ID');
+                XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary with Costs');
                 
                 const detailWs = XLSX.utils.json_to_sheet(detailData);
                 XLSX.utils.book_append_sheet(wb, detailWs, 'Detailed Records');
                 
-                XLSX.writeFile(wb, 'amadeus_WEP_summary.xlsx');
+                XLSX.writeFile(wb, 'amadeus_WEP_summary_with_costs.xlsx');
                 
             } catch (error) {
                 console.error('Error converting to Excel:', error);
@@ -764,6 +882,9 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         fileInput.addEventListener('change', handleFileUpload);
         uploadSection.addEventListener('drop', handleDrop);
         uploadSection.addEventListener('dragover', handleDragOver);
+
+        // Update display when cost changes
+        costPerTransactionInput.addEventListener('input', updateDisplay);
 
         processBtn.addEventListener('click', () => {
             const text = textArea.value.trim();
