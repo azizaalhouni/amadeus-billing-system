@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Excel Files Consolidator</title>
+    <style>
+        body {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .description {
+            text-align: center;
+            color: #666;
+            margin-bottom: 2rem;
+        }
+
+        .upload-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .file-group {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+        }
+
+        .file-group h3 {
+            margin-top: 0;
+            color: #007cba;
+        }
+
+        .file-input {
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .file-status {
+            margin-left: 1rem;
+            font-size: 0.9rem;
+        }
+
+        .status-success {
+            color: #28a745;
+        }
+
+        .status-pending {
+            color: #6c757d;
+        }
+
+        .process-btn, .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0.5rem;
+            transition: background-color 0.2s;
+        }
+
+        .process-btn:hover:not(:disabled) {
+            background: #218838;
+        }
+
+        .process-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .download-btn {
+            background: #007cba;
+        }
+
+        .download-btn:hover {
+            background: #005a87;
+        }
+
+        .results-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border: 2px solid #28a745;
+        }
+
+        .results-section h3 {
+            color: #28a745;
+            margin-top: 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 1rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+            position: sticky;
+            top: 0;
+        }
+
+        .office-id {
+            background: #e7f3ff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        .count-cell {
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .total-cell {
+            background: #d4edda;
+            font-weight: bold;
+            text-align: right;
+        }
+
+        .progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e7f3ff;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .debug-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fff3cd;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            
+            table {
+                font-size: 0.8rem;
+            }
+            
+            th, td {
+                padding: 6px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation Header -->
+    <nav style="
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+padding: 1rem 0;
+margin: -2rem -2rem 2rem -2rem;
+box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+">
+<div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+    <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
+       Amadeus Reports Processing Suite
+    </h2>
+       <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem; direction: rtl;">
+   مجموعة معالجة تقارير أماديوس
+</h2>
+    <div style="
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        align-items: center;
+    ">
+        <a href="ATC&MPT.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+           ATC & MPT Reports
+        </a>
+        <a href="wep.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+           WEP Reports
+        </a>
+        <a href="pnr.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+           PNR Reports
+        </a>
+        <a href="mpe.html" style="
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.3);
+        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+             MPE Reports
+        </a>
+        <a href="invoice.html" style="
+            background: rgba(255,255,255,0.4);
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.6);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        " onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
+           onmouseout="this.style.background='rgba(255,255,255,0.4)'">
+                          Consolidator الموحد
+
+        </a>
+    </div>
+    <p style="
+        color: rgba(255,255,255,0.9);
+        text-align: center;
+        margin: 1rem 0 0 0;
+        font-size: 0.85rem;
+    ">
+        Process individual reports, then use the Consolidator to merge all Excel outputs
+    </p>
+     <p style="
+        color: rgba(255,255,255,0.9);
+        text-align: center;
+        margin: 1rem 0 0 0;
+        font-size: 0.85rem;
+        direction: rtl;
+    ">
+        قم بمعالجة التقارير الفردية، ثم استخدم الموحد لدمج جميع مخرجات Excel
+</p>
+</div>
+</nav>
+    <div class="container">
+        <h1>Excel Files Consolidator & Generate Invoices</h1>
+<h1 style="direction: rtl;">موحد ملفات Excel وإنشاء الفواتير</h1>
+
+        <p class="description">Consolidate Summary sheets from multiple Amadeus Excel files into bills.xlsx and Generate Bills</p>
+<p class="description" style="direction: rtl;">دمج أوراق الملخص من ملفات الاكسل المتعددة في bills.xlsx وإنشاء الفواتير</p>
+        <div class="upload-section">
+            <div class="file-group">
+                <h3>📊 Master File (bills.xlsx)</h3>
+                <input type="file" id="billsFile" class="file-input" accept=".xlsx,.xls" />
+                <span id="billsStatus" class="file-status status-pending">No file selected</span>
+            </div>
+
+            <div class="file-group">
+                <h3>🎫 ATC File (atc_amadeus_summary_and_details2.xlsx)</h3>
+                <input type="file" id="atcFile" class="file-input" accept=".xlsx,.xls" />
+                <span id="atcStatus" class="file-status status-pending">No file selected</span>
+            </div>
+
+            <div class="file-group">
+                <h3>🌐 WEP File (amadeus_WEP_summary.xlsx)</h3>
+                <input type="file" id="wepFile" class="file-input" accept=".xlsx,.xls" />
+                <span id="wepStatus" class="file-status status-pending">No file selected</span>
+            </div>
+
+            <div class="file-group">
+                <h3>📋 PNR File (amadeus_PNR_summary.xlsx)</h3>
+                <input type="file" id="pnrFile" class="file-input" accept=".xlsx,.xls" />
+                <span id="pnrStatus" class="file-status status-pending">No file selected</span>
+            </div>
+
+            <div class="file-group">
+                <h3>📈 MPT File</h3>
+                <input type="file" id="mptFile" class="file-input" accept=".xlsx,.xls" />
+                <span id="mptStatus" class="file-status status-pending">No file selected</span>
+            </div>
+
+            <div class="file-group">
+                <h3>🔍 MPE File</h3>
+                <input type="file" id="mpeFile" class="file-input" accept=".xlsx,.xls" />
+                <span id="mpeStatus" class="file-status status-pending">No file selected</span>
+            </div>
+
+            <div class="progress" id="progressDiv">
+                <p id="progressText">Processing files...</p>
+            </div>
+
+            <div class="debug-info" id="debugInfo">
+                <h4>Debug Information:</h4>
+                <div id="debugContent"></div>
+            </div>
+
+            <button id="processBtn" class="process-btn" disabled>
+                Process & Consolidate Files     معالجة ودمج الملفات
+
+            </button>
+        </div>
+
+        <div id="resultsSection" class="results-section" style="display: none;">
+            <h3>📊 Consolidated Summary Preview</h3>
+            <div class="table-container">
+                <table id="summaryTable">
+                    <thead>
+                        <tr>
+                            <th>Office ID</th>
+                            <th>Office Name</th>
+                            <th>Office Arabic Name</th>
+                            <th>IATA Number</th>
+                            <th>ATC Total</th>
+                            <th>WEP Total</th>
+                            <th>PNR Total</th>
+                            <th>MPT Total</th>
+                            <th>MPE Total</th>
+                            <th>Grand Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="summaryTableBody">
+                    </tbody>
+                </table>
+            </div>
+
+            <button id="downloadBtn" class="download-btn">
+                Download Consolidated bills.xlsx تحميل ملف الاكسل الموحد
+            </button>
+            
+            <button id="generateInvoicesBtn" class="download-btn" style="background: #dc3545; margin-left: 10px;">
+                Generate Individual Office Invoices     إنشاء فواتير المكاتب الفردية
+
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let files = {};
+        let consolidatedWorkbook = null;
+        let masterSummary = {};
+        let officeDetails = {}; // Will store office ID -> { name, arabicName, iataNumber }
+
+        // DOM elements
+        const fileInputs = {
+            bills: document.getElementById('billsFile'),
+            atc: document.getElementById('atcFile'),
+            wep: document.getElementById('wepFile'),
+            pnr: document.getElementById('pnrFile'),
+            mpt: document.getElementById('mptFile'),
+            mpe: document.getElementById('mpeFile')
+        };
+
+        const statusElements = {
+            bills: document.getElementById('billsStatus'),
+            atc: document.getElementById('atcStatus'),
+            wep: document.getElementById('wepStatus'),
+            pnr: document.getElementById('pnrStatus'),
+            mpt: document.getElementById('mptStatus'),
+            mpe: document.getElementById('mpeStatus')
+        };
+
+        const processBtn = document.getElementById('processBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const generateInvoicesBtn = document.getElementById('generateInvoicesBtn');
+        const progressDiv = document.getElementById('progressDiv');
+        const progressText = document.getElementById('progressText');
+        const resultsSection = document.getElementById('resultsSection');
+        const summaryTableBody = document.getElementById('summaryTableBody');
+        const debugInfo = document.getElementById('debugInfo');
+        const debugContent = document.getElementById('debugContent');
+
+        // Handle file uploads
+        Object.keys(fileInputs).forEach(key => {
+            fileInputs[key].addEventListener('change', (event) => {
+                handleFileUpload(key, event.target.files[0]);
+            });
+        });
+
+        function handleFileUpload(type, file) {
+            if (!file) return;
+
+            files[type] = file;
+            statusElements[type].textContent = `✅ ${file.name}`;
+            statusElements[type].className = 'file-status status-success';
+
+            // Check if we have at least bills file and one data file
+            const hasBills = files.bills;
+            const hasDataFiles = files.atc || files.wep || files.pnr || files.mpt || files.mpe;
+            
+            processBtn.disabled = !(hasBills && hasDataFiles);
+        }
+
+        // Process files
+        processBtn.addEventListener('click', async () => {
+            progressDiv.style.display = 'block';
+            debugInfo.style.display = 'block';
+            processBtn.disabled = true;
+            
+            try {
+                await processFiles();
+                displayResults();
+                resultsSection.style.display = 'block';
+            } catch (error) {
+                console.error('Error processing files:', error);
+                alert('Error processing files: ' + error.message);
+                debugContent.innerHTML += `<p><strong>Error:</strong> ${error.message}</p>`;
+            } finally {
+                progressDiv.style.display = 'none';
+                processBtn.disabled = false;
+            }
+        });
+
+        async function processFiles() {
+            // Read bills.xlsx
+            progressText.textContent = 'Reading bills.xlsx...';
+            const billsData = await readFile(files.bills);
+            consolidatedWorkbook = XLSX.read(billsData);
+
+            // Load office details from bills.xlsx
+            progressText.textContent = 'Loading office details...';
+            loadOfficeDetails();
+
+            // Process each data file
+            const dataFiles = ['atc', 'wep', 'pnr', 'mpt', 'mpe'];
+            
+            for (const fileType of dataFiles) {
+                if (files[fileType]) {
+                    progressText.textContent = `Processing ${fileType.toUpperCase()} file...`;
+                    await processDataFile(fileType, files[fileType]);
+                }
+            }
+
+            // Create master summary sheet
+            progressText.textContent = 'Creating master summary...';
+            createMasterSummary();
+        }
+
+        function loadOfficeDetails() {
+            debugContent.innerHTML += '<p><strong>Loading office details...</strong></p>';
+            
+            // Look for office details sheet (try multiple possible names)
+            const possibleSheetNames = [
+                'office_details',
+                'Office_Details', 
+                'OFFICE_DETAILS',
+                'Office Details',
+                'OFFICE DETAILS',
+                'Sheet1',
+                'Sheet 1'
+            ];
+            
+            let officeSheetName = null;
+            for (const name of possibleSheetNames) {
+                if (consolidatedWorkbook.Sheets[name]) {
+                    officeSheetName = name;
+                    break;
+                }
+            }
+            
+            // If no specific sheet found, use the first sheet
+            if (!officeSheetName && consolidatedWorkbook.SheetNames.length > 0) {
+                officeSheetName = consolidatedWorkbook.SheetNames[0];
+            }
+
+            debugContent.innerHTML += `<p>Available sheets: ${consolidatedWorkbook.SheetNames.join(', ')}</p>`;
+            debugContent.innerHTML += `<p>Using sheet: ${officeSheetName}</p>`;
+
+            if (officeSheetName && consolidatedWorkbook.Sheets[officeSheetName]) {
+                const officeSheet = consolidatedWorkbook.Sheets[officeSheetName];
+                const officeData = XLSX.utils.sheet_to_json(officeSheet);
+                
+                debugContent.innerHTML += `<p>Found ${officeData.length} rows in office sheet</p>`;
+                
+                if (officeData.length > 0) {
+                    debugContent.innerHTML += `<p>First row columns: ${Object.keys(officeData[0]).join(', ')}</p>`;
+                }
+                
+                // Create mapping from office data with flexible column matching
+                officeData.forEach((row, index) => {
+                    // Try different possible column names for Office ID
+                    const officeId = row['OFFICE ID'] || row['Office ID'] || row['office_id'] || 
+                                   row['OfficeID'] || row['Office Id'] || row['OFFICEID'] ||
+                                   row['Office_ID'] || row['ID'] || '';
+                    
+                    // Try different possible column names for Office Name
+                    const officeName = row['OFFICE NAME'] || row['Office Name'] || row['office_name'] ||
+                                     row['OfficeName'] || row['Office_Name'] || row['OFFICENAME'] ||
+                                     row['Name'] || row['NAME'] || '';
+                    
+                    // Try different possible column names for Arabic Name
+                    const officeArabicName = row['OFFICE ARABIC NAME'] || row['Office Arabic Name'] || 
+                                           row['office_arabic_name'] || row['ArabicName'] || 
+                                           row['Arabic_Name'] || row['ARABICNAME'] ||
+                                           row['Arabic Name'] || row['ARABIC NAME'] || '';
+                    
+                    // Try different possible column names for IATA Number
+                    const iataNumber = row['IATA NUMBER'] || row['Iata Number'] || row['iata_number'] ||
+                                     row['IATA_NUMBER'] || row['IataNumber'] || row['IATANUMBER'] ||
+                                     row['IATA'] || row['Iata'] || '';
+                    
+                    if (officeId) {
+                        const cleanOfficeId = officeId.toString().trim();
+                        officeDetails[cleanOfficeId] = {
+                            name: officeName ? officeName.toString().trim() : 'Unknown Office',
+                            arabicName: officeArabicName ? officeArabicName.toString().trim() : 'مكتب غير معروف',
+                            iataNumber: iataNumber ? iataNumber.toString().trim() : 'Unknown'
+                        };
+                        
+                        if (index < 5) { // Show first 5 for debugging
+                            debugContent.innerHTML += `<p>Sample office: ${cleanOfficeId} -> ${officeName} | ${officeArabicName} | ${iataNumber}</p>`;
+                        }
+                    }
+                });
+                
+                debugContent.innerHTML += `<p>Successfully mapped ${Object.keys(officeDetails).length} offices</p>`;
+            } else {
+                debugContent.innerHTML += '<p><strong>Warning:</strong> No office details sheet found</p>';
+            }
+        }
+
+        async function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = (e) => reject(e);
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        async function processDataFile(fileType, file) {
+            const data = await readFile(file);
+            const workbook = XLSX.read(data);
+            
+            debugContent.innerHTML += `<p>Processing ${fileType}: Available sheets: ${workbook.SheetNames.join(', ')}</p>`;
+            
+            // Find the summary sheet (try different possible names)
+            const possibleSummaryNames = [
+                'Summary by Office ID',
+                'Summary with Costs',
+                'Summary',
+                'summary',
+                'SUMMARY',
+                'Sheet1'
+            ];
+            
+            let summarySheetName = null;
+            for (const name of possibleSummaryNames) {
+                if (workbook.SheetNames.includes(name)) {
+                    summarySheetName = name;
+                    break;
+                }
+            }
+            
+            if (!summarySheetName) {
+                summarySheetName = workbook.SheetNames[0]; // Use first sheet as fallback
+            }
+
+            debugContent.innerHTML += `<p>${fileType}: Using sheet '${summarySheetName}'</p>`;
+
+            if (!summarySheetName) {
+                debugContent.innerHTML += `<p><strong>Warning:</strong> No summary sheet found in ${fileType} file</p>`;
+                return;
+            }
+
+            const summarySheet = workbook.Sheets[summarySheetName];
+            const summaryData = XLSX.utils.sheet_to_json(summarySheet);
+
+            debugContent.innerHTML += `<p>${fileType}: Found ${summaryData.length} rows</p>`;
+            
+            if (summaryData.length > 0) {
+                debugContent.innerHTML += `<p>${fileType}: Columns: ${Object.keys(summaryData[0]).join(', ')}</p>`;
+            }
+
+            // Add this sheet to consolidated workbook
+            const newSheetName = `${fileType.toUpperCase()}_Summary`;
+            consolidatedWorkbook.Sheets[newSheetName] = summarySheet;
+            consolidatedWorkbook.SheetNames.push(newSheetName);
+
+            // Process data for master summary
+            summaryData.forEach((row, index) => {
+                // Try different possible column names for Office ID
+                const officeId = row['Office ID'] || row['Office Id'] || row['OFFICE ID'] || 
+                               row['OfficeID'] || row['ID'] || '';
+                
+                // Try different possible column names for cost/count
+                const totalCost = parseFloat(
+                    row['Total Cost'] || row['Total Transactions'] || row['Total Count'] ||
+                    row['Total PNR Recalls'] || row['Total Searches'] || row['Grand Total'] ||
+                    row['TOTAL COST'] || row['TOTAL COUNT'] || 0
+                );
+
+                if (officeId && !isNaN(totalCost)) {
+                    const cleanOfficeId = officeId.toString().trim();
+                    
+                    if (!masterSummary[cleanOfficeId]) {
+                        const officeInfo = officeDetails[cleanOfficeId] || {
+                            name: 'Unknown Office',
+                            arabicName: 'مكتب غير معروف',
+                            iataNumber: 'Unknown'
+                        };
+                        
+                        masterSummary[cleanOfficeId] = {
+                            officeId: cleanOfficeId,
+                            officeName: officeInfo.name,
+                            officeArabicName: officeInfo.arabicName,
+                            iataNumber: officeInfo.iataNumber,
+                            atc: 0,
+                            wep: 0,
+                            pnr: 0,
+                            mpt: 0,
+                            mpe: 0
+                        };
+                    }
+                    masterSummary[cleanOfficeId][fileType] = totalCost;
+                    
+                    if (index < 3) { // Show first 3 for debugging
+                        debugContent.innerHTML += `<p>${fileType} sample: ${cleanOfficeId} = ${totalCost}</p>`;
+                    }
+                }
+            });
+        }
+
+        function createMasterSummary() {
+            debugContent.innerHTML += '<p><strong>Creating master summary...</strong></p>';
+
+            // Convert master summary to array and calculate totals (only offices with data)
+            const summaryArray = Object.values(masterSummary)
+                .filter(office => {
+                    // Only include offices that have transactions in at least one system
+                    const hasTransactions = office.atc > 0 || office.wep > 0 || office.pnr > 0 || office.mpt > 0 || office.mpe > 0;
+                    return hasTransactions;
+                })
+                .map(office => ({
+                    'Office ID': office.officeId,
+                    'Office Name': office.officeName,
+                    'Office Arabic Name': office.officeArabicName,
+                    'IATA Number': office.iataNumber,
+                    'ATC Total': office.atc,
+                    'WEP Total': office.wep,
+                    'PNR Total': office.pnr,
+                    'MPT Total': office.mpt,
+                    'MPE Total': office.mpe,
+                    'Grand Total': office.atc + office.wep + office.pnr + office.mpt + office.mpe
+                }));
+
+            debugContent.innerHTML += `<p>Master summary: ${summaryArray.length} offices with transactions</p>`;
+
+            // Sort by Grand Total (highest first), then by Office ID
+            summaryArray.sort((a, b) => {
+                if (b['Grand Total'] !== a['Grand Total']) {
+                    return b['Grand Total'] - a['Grand Total'];
+                }
+                return a['Office ID'].localeCompare(b['Office ID']);
+            });
+
+            // Create worksheet
+            const masterSheet = XLSX.utils.json_to_sheet(summaryArray);
+            
+            // Add to workbook
+            consolidatedWorkbook.Sheets['Master_Summary'] = masterSheet;
+            consolidatedWorkbook.SheetNames.unshift('Master_Summary'); // Add at beginning
+        }
+
+        function displayResults() {
+            // Only show offices that have transactions in at least one system
+            const summaryArray = Object.values(masterSummary)
+                .filter(office => {
+                    const hasTransactions = office.atc > 0 || office.wep > 0 || office.pnr > 0 || office.mpt > 0 || office.mpe > 0;
+                    return hasTransactions;
+                })
+                .map(office => ({
+                    officeId: office.officeId,
+                    officeName: office.officeName,
+                    officeArabicName: office.officeArabicName,
+                    iataNumber: office.iataNumber,
+                    atc: office.atc,
+                    wep: office.wep,
+                    pnr: office.pnr,
+                    mpt: office.mpt,
+                    mpe: office.mpe,
+                    grandTotal: office.atc + office.wep + office.pnr + office.mpt + office.mpe
+                }));
+
+            // Sort by Grand Total (highest first), then by Office ID
+            summaryArray.sort((a, b) => {
+                if (b.grandTotal !== a.grandTotal) {
+                    return b.grandTotal - a.grandTotal;
+                }
+                return a.officeId.localeCompare(b.officeId);
+            });
+
+            summaryTableBody.innerHTML = summaryArray.map(office => `
+                <tr>
+                    <td><span class="office-id">${office.officeId}</span></td>
+                    <td>${office.officeName}</td>
+                    <td>${office.officeArabicName}</td>
+                    <td>${office.iataNumber}</td>
+                    <td class="count-cell">${office.atc.toLocaleString()}</td>
+                    <td class="count-cell">${office.wep.toLocaleString()}</td>
+                    <td class="count-cell">${office.pnr.toLocaleString()}</td>
+                    <td class="count-cell">${office.mpt.toLocaleString()}</td>
+                    <td class="count-cell">${office.mpe.toLocaleString()}</td>
+                    <td class="total-cell">${office.grandTotal.toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Download consolidated file
+        downloadBtn.addEventListener('click', () => {
+            if (!consolidatedWorkbook) {
+                alert('No data to download. Please process files first.');
+                return;
+            }
+
+            XLSX.writeFile(consolidatedWorkbook, 'bills_consolidated.xlsx');
+        });
+
+        // Generate individual office invoices
+        generateInvoicesBtn.addEventListener('click', () => {
+            if (!consolidatedWorkbook || !masterSummary) {
+                alert('No data available. Please process files first.');
+                return;
+            }
+
+            generateOfficeInvoices();
+        });
+
+        function generateOfficeInvoices() {
+            try {
+                progressDiv.style.display = 'block';
+                progressText.textContent = 'Generating individual office invoices...';
+                
+                // Create a new workbook for invoices
+                const invoiceWorkbook = XLSX.utils.book_new();
+                
+                // Get offices that have transactions
+                const officesWithTransactions = Object.values(masterSummary)
+                    .filter(office => {
+                        const hasTransactions = office.atc > 0 || office.wep > 0 || office.pnr > 0 || office.mpt > 0 || office.mpe > 0;
+                        return hasTransactions;
+                    })
+                    .sort((a, b) => a.officeId.localeCompare(b.officeId));
+
+                debugContent.innerHTML += `<p>Generating invoices for ${officesWithTransactions.length} offices...</p>`;
+
+                // Create invoice sheet for each office
+                officesWithTransactions.forEach((office, index) => {
+                    progressText.textContent = `Generating invoice for office ${office.officeId} (${index + 1}/${officesWithTransactions.length})...`;
+                    
+                    // Create invoice data for this office
+                    const invoiceData = [
+                        // Header information
+                        ['AMADEUS SERVICES INVOICE', '', '', ''],
+                        ['', '', '', ''],
+                        ['Office ID:', office.officeId, '', ''],
+                        ['Office Name:', office.officeName, '', ''],
+                        ['Office Arabic Name:', office.officeArabicName, '', ''],
+                        ['IATA Number:', office.iataNumber, '', ''],
+                        ['', '', '', ''],
+                        
+                        // Services header
+                        ['SERVICE DETAILS', '', '', ''],
+                        ['Service Type', 'Description', 'Quantity', 'Total Cost'],
+                        ['', '', '', '']
+                    ];
+
+                    // Add service lines (only for services with non-zero values)
+                    if (office.atc > 0) {
+                        invoiceData.push(['ATC Services', 'Ticket Changer Transactions', office.atc, `${office.atc.toFixed(2)}`]);
+                    }
+                    if (office.wep > 0) {
+                        invoiceData.push(['WEP Services', 'Web Services Transactions', office.wep, `${office.wep.toFixed(2)}`]);
+                    }
+                    if (office.pnr > 0) {
+                        invoiceData.push(['PNR Services', 'PNR Recall Transactions', office.pnr, `${office.pnr.toFixed(2)}`]);
+                    }
+                    if (office.mpt > 0) {
+                        invoiceData.push(['MPT Services', 'MPT Transactions', office.mpt, `${office.mpt.toFixed(2)}`]);
+                    }
+                    if (office.mpe > 0) {
+                        invoiceData.push(['MPE Services', 'Low Fare Search Transactions', office.mpe, `${office.mpe.toFixed(2)}`]);
+                    }
+
+                    // Add total
+                    const totalCost = office.atc + office.wep + office.pnr + office.mpt + office.mpe;
+                    invoiceData.push(['', '', '', '']);
+                    invoiceData.push(['', '', 'TOTAL AMOUNT:', `${totalCost.toFixed(2)}`]);
+
+                    // Create worksheet
+                    const invoiceSheet = XLSX.utils.aoa_to_sheet(invoiceData);
+                    
+                    // Set column widths
+                    invoiceSheet['!cols'] = [
+                        { width: 20 }, // Service Type
+                        { width: 30 }, // Description
+                        { width: 15 }, // Quantity
+                        { width: 15 }  // Total Cost
+                    ];
+
+                    // Add some basic styling by merging cells for header
+                    if (!invoiceSheet['!merges']) invoiceSheet['!merges'] = [];
+                    invoiceSheet['!merges'].push(
+                        { s: { r: 0, c: 0 }, e: { r: 0, c: 3 } }, // Merge title row
+                        { s: { r: 7, c: 0 }, e: { r: 7, c: 3 } }  // Merge service details header
+                    );
+
+                    // Create a clean sheet name (remove special characters)
+                    const cleanOfficeId = office.officeId.replace(/[^\w\s]/gi, '').substring(0, 31);
+                    const sheetName = `Invoice_${cleanOfficeId}`;
+                    
+                    // Add sheet to workbook
+                    XLSX.utils.book_append_sheet(invoiceWorkbook, invoiceSheet, sheetName);
+                });
+
+                // Create a summary sheet with all invoices
+                const allInvoicesData = [
+                    ['AMADEUS SERVICES - ALL OFFICES SUMMARY', '', '', '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['Office ID', 'Office Name', 'Office Arabic Name', 'IATA Number', 'Total Amount', 'Status'],
+                    ['', '', '', '', '', '']
+                ];
+
+                officesWithTransactions.forEach(office => {
+                    const totalCost = office.atc + office.wep + office.pnr + office.mpt + office.mpe;
+                    allInvoicesData.push([
+                        office.officeId,
+                        office.officeName,
+                        office.officeArabicName,
+                        office.iataNumber,
+                        `${totalCost.toFixed(2)}`,
+                        'Invoice Generated'
+                    ]);
+                });
+
+                const summarySheet = XLSX.utils.aoa_to_sheet(allInvoicesData);
+                summarySheet['!cols'] = [
+                    { width: 15 }, // Office ID
+                    { width: 25 }, // Office Name
+                    { width: 25 }, // Arabic Name
+                    { width: 15 }, // IATA
+                    { width: 15 }, // Total
+                    { width: 15 }  // Status
+                ];
+
+                // Add summary sheet at the beginning
+                XLSX.utils.book_append_sheet(invoiceWorkbook, summarySheet, 'All_Invoices_Summary');
+                
+                // Move summary to first position
+                const sheetNames = invoiceWorkbook.SheetNames;
+                const summaryIndex = sheetNames.indexOf('All_Invoices_Summary');
+                if (summaryIndex > 0) {
+                    sheetNames.splice(summaryIndex, 1);
+                    sheetNames.unshift('All_Invoices_Summary');
+                }
+
+                // Download the invoice workbook
+                progressText.textContent = 'Downloading invoices file...';
+                XLSX.writeFile(invoiceWorkbook, 'amadeus_office_invoices.xlsx');
+                
+                debugContent.innerHTML += `<p><strong>Success!</strong> Generated ${officesWithTransactions.length} individual invoices</p>`;
+                alert(`Successfully generated ${officesWithTransactions.length} individual office invoices!\nFile downloaded as: amadeus_office_invoices.xlsx`);
+                
+            } catch (error) {
+                console.error('Error generating invoices:', error);
+                alert('Error generating invoices: ' + error.message);
+                debugContent.innerHTML += `<p><strong>Error generating invoices:</strong> ${error.message}</p>`;
+            } finally {
+                progressDiv.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
