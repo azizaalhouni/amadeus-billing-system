@@ -445,7 +445,6 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             <h3>💰 إعدادات حساب التكلفة</h3>
 
             <label for="costPerTransaction">
-                <span class="currency-symbol">$</span>
                 <input 
                     type="number" 
                     id="costPerTransaction" 
@@ -534,7 +533,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                         <thead>
                             <tr>
                                 <th>Office ID</th>
-                                <th>Total PNR Recalls</th>
+                                <th>Total Count</th>
                                 <th>Cost per Recall</th>
                                 <th>Total Cost</th>
                             </tr>
@@ -752,8 +751,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 <tr>
                     <td><span class="office-id">${row.officeId}</span></td>
                     <td><span class="total-count">${row.totalCount}</span></td>
-                    <td>$${costPerTransaction.toFixed(2)}</td>
-                    <td><span class="total-cost">$${totalCost}</span></td>
+                    <td>${costPerTransaction.toFixed(2)}</td>
+                    <td><span class="total-cost">${totalCost}</span></td>
                 </tr>
                 `;
             }).join('');
@@ -835,9 +834,9 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     const totalCost = (row.totalCount * costPerTransaction).toFixed(2);
                     return {
                         'Office ID': row.officeId,
-                        'Total PNR Recalls': row.totalCount,
-                        'Cost per Recall': `$${costPerTransaction.toFixed(2)}`,
-                        'Total Cost': `$${totalCost}`
+                        'Total Count': row.totalCount,
+                        'Cost per Recall': `${costPerTransaction.toFixed(2)}`,
+                        'Total Cost': `${totalCost}`
                     };
                 });
 
