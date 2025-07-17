@@ -534,7 +534,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                         <thead>
                             <tr>
                                 <th>Office ID</th>
-                                <th>Total Searches</th>
+                                <th>Total Count</th>
                                 <th>Cost per Search</th>
                                 <th>Total Cost</th>
                             </tr>
@@ -827,9 +827,9 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     const totalCost = (row.totalCount * costPerTransaction).toFixed(2);
                     return {
                         'Office ID': row.officeId,
-                        'Total Searches': row.totalCount,
-                        'Cost per Search': `$${costPerTransaction.toFixed(2)}`,
-                        'Total Cost': `$${totalCost}`
+                        'Total Count': row.totalCount,
+                        'Cost per Search': `${costPerTransaction.toFixed(2)}`,
+                        'Total Cost': `${totalCost}`
                     };
                 });
 
