@@ -542,7 +542,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                         <thead>
                             <tr>
                                 <th>Office ID</th>
-                                <th>Total Transactions</th>
+                                <th>Total Count</th>
                                 <th>Cost per Transaction</th>
                                 <th>Total Cost</th>
                             </tr>
@@ -842,11 +842,12 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     const totalCost = (row.totalTransactions * costPerTransaction).toFixed(2);
                     return {
                         'Office ID': row.officeId,
-                        'Total Transactions': row.totalTransactions,
-                        'Cost per Transaction': `$${costPerTransaction.toFixed(2)}`,
-                        'Total Cost': `$${totalCost}`
+                        'Total Count': row.totalTransactions,
+                        'Cost per Transaction': `${costPerTransaction.toFixed(2)}`,
+                        'Total Cost': `${totalCost}`
                     };
                 });
+
 
                 const detailData = processedData.map(row => ({
                     'Row Number': row.rowNumber,
