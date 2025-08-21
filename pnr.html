@@ -746,13 +746,13 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             const costPerTransaction = getCostPerTransaction();
             
             summaryTableBody.innerHTML = groupedData.map(row => {
-                const totalCost = (row.totalCount * costPerTransaction).toFixed(2);
+                const totalCost = (row.totalCount * costPerTransaction);
                 return `
                 <tr>
                     <td><span class="office-id">${row.officeId}</span></td>
                     <td><span class="total-count">${row.totalCount}</span></td>
-                    <td>${costPerTransaction.toFixed(2)}</td>
-                    <td><span class="total-cost">${totalCost}</span></td>
+                    <td>${costPerTransaction}</td>
+                    <td><span class="total-cost">${totalCost.toFixed(4)}</span></td>
                 </tr>
                 `;
             }).join('');
@@ -831,12 +831,12 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 
                 // Summary sheet data with cost calculations
                 const summaryData = groupedData.map(row => {
-                    const totalCost = (row.totalCount * costPerTransaction).toFixed(2);
+                    const totalCost = (row.totalCount * costPerTransaction);
                     return {
                         'Office ID': row.officeId,
                         'Total Count': row.totalCount,
-                        'Cost per Recall': `${costPerTransaction.toFixed(2)}`,
-                        'Total Cost': `${totalCost}`
+                        'Cost per Recall': `${costPerTransaction}`,
+                        'Total Cost': `${totalCost.toFixed(4)}`
                     };
                 });
 
