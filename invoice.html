@@ -923,315 +923,297 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             return `${day} ${months[month - 1]} ${year}`;
         }
 
-        function generateOfficeInvoices() {
-            try {
-                progressDiv.style.display = 'block';
-                progressText.textContent = 'جاري إنشاء فواتير المكاتب الفردية...';
-                
-                // Create a new workbook for invoices
-                const invoiceWorkbook = XLSX.utils.book_new();
-                
-                // Get offices that have transactions
-                const officesWithTransactions = Object.values(masterSummary)
-                    .filter(office => {
-                        const hasTransactions = office.atcCount > 0 || office.wepCount > 0 || office.pnrCount > 0 || 
-                                              office.mptCount > 0 || office.mpeCount > 0 ||
-                                              office.atcCost > 0 || office.wepCost > 0 || office.pnrCost > 0 || 
-                                              office.mptCost > 0 || office.mpeCost > 0;
-                        return hasTransactions;
-                    })
-                    .sort((a, b) => a.officeId.localeCompare(b.officeId));
+       function generateOfficeInvoices() {
+    try {
+        progressDiv.style.display = 'block';
+        progressText.textContent = 'جاري إنشاء فواتير المكاتب الفردية...';
+        
+        // Create a new workbook for invoices
+        const invoiceWorkbook = XLSX.utils.book_new();
+        
+        // Get offices that have transactions
+        const officesWithTransactions = Object.values(masterSummary)
+            .filter(office => {
+                const hasTransactions = office.atcCount > 0 || office.wepCount > 0 || office.pnrCount > 0 || 
+                                      office.mptCount > 0 || office.mpeCount > 0 ||
+                                      office.atcCost > 0 || office.wepCost > 0 || office.pnrCost > 0 || 
+                                      office.mptCost > 0 || office.mpeCost > 0;
+                return hasTransactions;
+            })
+            .sort((a, b) => a.officeId.localeCompare(b.officeId));
 
-                debugContent.innerHTML += `<p>إنشاء فواتير لـ ${officesWithTransactions.length} مكتب...</p>`;
+        debugContent.innerHTML += `<p>إنشاء فواتير لـ ${officesWithTransactions.length} مكتب...</p>`;
 
-                // Create invoice sheet for each office
-                officesWithTransactions.forEach((office, index) => {
-                    progressText.textContent = `إنشاء فاتورة للمكتب ${office.officeId} (${index + 1}/${officesWithTransactions.length})...`;
+        // Create invoice sheet for each office
+        officesWithTransactions.forEach((office, index) => {
+            progressText.textContent = `إنشاء فاتورة للمكتب ${office.officeId} (${index + 1}/${officesWithTransactions.length})...`;
+            
+            const currentDate = getCurrentDateArabic();
+            const currentYear = new Date().getFullYear();
+            
+            // Calculate totals using the cost values
+            let subtotal = 0;
+            let rowCounter = 1;
+            const serviceRows = [];
+
+            // Add service lines (only for services with non-zero values)
+            if (office.mpeCost > 0) {
+                serviceRows.push([
+                    rowCounter++, 
+                    'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPE', 
+                    office.mpeCount, 
+                    office.mpeCost.toFixed(3)
+                ]);
+                subtotal += office.mpeCost;
+            }
+            
+            if (office.mptCost > 0) {
+                serviceRows.push([
+                    rowCounter++, 
+                    'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPT', 
+                    office.mptCount, 
+                    office.mptCost.toFixed(3)
+                ]);
+                subtotal += office.mptCost;
+            }
+
+            if (office.atcCost > 0) {
+                serviceRows.push([
+                    rowCounter++, 
+                    'استخدام خاصية تغيير التذاكر ATC', 
+                    office.atcCount, 
+                    office.atcCost.toFixed(3)
+                ]);
+                subtotal += office.atcCost;
+            }
+
+            if (office.wepCost > 0) {
+                serviceRows.push([
+                    rowCounter++, 
+                    'استخدام الخدمات الإلكترونية WEP', 
+                    office.wepCount, 
+                    office.wepCost.toFixed(3)
+                ]);
+                subtotal += office.wepCost;
+            }
+
+            if (office.pnrCost > 0) {
+                serviceRows.push([
+                    rowCounter++, 
+                    'استخدام خاصية استدعاء الحجوزات PNR', 
+                    office.pnrCount, 
+                    office.pnrCost.toFixed(3)
+                ]);
+                subtotal += office.pnrCost;
+            }
+
+            // const stampTax = subtotal * 0.01;
+            const totalCost = subtotal ;
+            const totalInWords = numberToArabic(Math.floor(totalCost)) + ' دينار ليبي';
+
+            // Create Arabic invoice data with REVERSED column order for RTL display
+            // Original order was: ['القيمة (د.ل)', 'الكمية', 'البيان', 'ر.ت', '', '']
+            // RTL order should be: ['', '', 'ر.ت', 'البيان', 'الكمية', 'القيمة (د.ل)']
+            const invoiceData = [
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', 'شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', `التاريخ: ${currentDate}`, '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', `الاخوة / ${office.officeArabicName}`, ''],
+                ['', '', '', '', '', ''],
+                ['', '', `رقم الآياتا: ${office.iataNumber}`, '', 'بعد التحية ،،،', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', `فاتورة رقم: _____ / ${currentYear}`, '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', 'نأمل منكم سداد قيمة الفاتورة المبينة أدناه :', '', ''],
+                ['', '', '', '', '', ''],
+                ['', '', '', '', '', ''],
+                // REVERSED header row for RTL: العمودان الفارغان ثم ر.ت، البيان، الكمية، القيمة
+                ['', '', 'ر.ت', 'البيان', 'الكمية', 'القيمة (د.ل)'],
+                ['', '', '', '', '', '']
+            ];
+
+            // Add service rows in REVERSED order for RTL display
+            serviceRows.forEach(row => {
+                invoiceData.push([
+                    '', 
+                    '',
+                    row[0], // ر.ت
+                    row[1], // البيان
+                    row[2], // الكمية
+                    row[3]  // القيمة
+                ]);
+            });
+
+            // Add spacing and totals (REVERSED for RTL)
+            invoiceData.push(['', '', '', '', '', '']);
+            // invoiceData.push(['', '', '', 'الاجمالي قبل الضريبة', '', subtotal.toFixed(3)]);
+            invoiceData.push(['', '', '', 'الاجمالي', '', subtotal.toFixed(3)])
+            // invoiceData.push(['', '', '', 'ضريبة الدمغة 1%', '', stampTax.toFixed(3)]);
+            // invoiceData.push(['', '', '', 'الاجمالي شامل الضريبة', '', totalCost.toFixed(3)]);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', `المبلغ بالحروف: ${totalInWords}`, '', '']);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', 'طريقة السداد:', '', '']);
+            invoiceData.push(['', '', '', 'يكون السداد نقداً أو بصك مصدق بخزينة الشركة', '', '']);
+            invoiceData.push(['', '', '', 'بإسم شركة أمادييوس ليبيا للخدمات التقنية المشتركة', '', '']);
+            invoiceData.push(['', '', '', 'أو بإيداع المبلغ بحساب الشركة رقم 0900003088', '', '']);
+            invoiceData.push(['', '', '', 'لدى المصرف الليبي الخارجي.', '', '']);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', 'والســـــــــــــــــــ عليكم ــــــــــــــــــلام', '', '']);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', '.........................', '', '']);
+            invoiceData.push(['', '', '', 'فوزي الصديق ابوحميدة', '', '']);
+            invoiceData.push(['', '', '', 'مدير الشؤون الادارية و المالية', '', '']);
+            invoiceData.push(['', '', '', '', '', '']);
+            invoiceData.push(['', '', '', 'ملف الصادر الفواتير ــــــــــــــــ اكرم', '', '']);
+
+            // Create worksheet
+            const invoiceSheet = XLSX.utils.aoa_to_sheet(invoiceData);
+            
+            // Set reference if not exists
+            if (!invoiceSheet['!ref']) invoiceSheet['!ref'] = 'A1:F60';
+            
+            // Set column widths for RTL layout (REVERSED order)
+            invoiceSheet['!cols'] = [
+                { width: 15 }, // Empty space (was rightmost)
+                { width: 15 }, // Empty space (was rightmost)
+                { width: 8 },  // ر.ت (was 4th from right)
+                { width: 50 }, // البيان (was 3rd from right)
+                { width: 12 }, // الكمية (was 2nd from right)
+                { width: 15 }  // القيمة (was rightmost, now leftmost)
+            ];
+            
+            // Set cell styles for RTL text alignment
+            const range = XLSX.utils.decode_range(invoiceSheet['!ref']);
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!invoiceSheet[cellAddress]) continue;
                     
-                    const currentDate = getCurrentDateArabic();
-                    const currentYear = new Date().getFullYear();
-                    
-                    // Calculate totals using the cost values
-                    let subtotal = 0;
-                    let rowCounter = 1;
-                    const serviceRows = [];
-
-                    // Add service lines (only for services with non-zero values)
-                    if (office.mpeCost > 0) {
-                        serviceRows.push([
-                            rowCounter++, 
-                            'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPE', 
-                            office.mpeCount, 
-                            office.mpeCost.toFixed(3)
-                        ]);
-                        subtotal += office.mpeCost;
-                    }
-                    
-                    if (office.mptCost > 0) {
-                        serviceRows.push([
-                            rowCounter++, 
-                            'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPT', 
-                            office.mptCount, 
-                            office.mptCost.toFixed(3)
-                        ]);
-                        subtotal += office.mptCost;
-                    }
-
-                    if (office.atcCost > 0) {
-                        serviceRows.push([
-                            rowCounter++, 
-                            'استخدام خاصية تغيير التذاكر ATC', 
-                            office.atcCount, 
-                            office.atcCost.toFixed(3)
-                        ]);
-                        subtotal += office.atcCost;
-                    }
-
-                    if (office.wepCost > 0) {
-                        serviceRows.push([
-                            rowCounter++, 
-                            'استخدام الخدمات الإلكترونية WEP', 
-                            office.wepCount, 
-                            office.wepCost.toFixed(3)
-                        ]);
-                        subtotal += office.wepCost;
-                    }
-
-                    if (office.pnrCost > 0) {
-                        serviceRows.push([
-                            rowCounter++, 
-                            'استخدام خاصية استدعاء الحجوزات PNR', 
-                            office.pnrCount, 
-                            office.pnrCost.toFixed(3)
-                        ]);
-                        subtotal += office.pnrCost;
-                    }
-
-                    const stampTax = subtotal * 0.01;
-                    const totalCost = subtotal + stampTax;
-                    const totalInWords = numberToArabic(Math.floor(totalCost)) + ' دينار ليبي';
-
-                    // Create Arabic invoice data with RTL layout
-                    const invoiceData = [
-                        ['', '', '', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', 'شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', '', `التاريخ: ${currentDate}`, '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', `الاخوة / ${office.officeArabicName}`, '', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', 'بعد التحية ،،،', '', `رقم الآياتا: ${office.iataNumber}`, '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', `فاتورة رقم: _____ / ${currentYear}`, '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', 'نأمل منكم سداد قيمة الفاتورة المبينة أدناه :', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['القيمة (د.ل)', 'الكمية', 'البيان', 'ر.ت', '', ''],
-                        ['', '', '', '', '', '']
-                    ];
-
-                    // Add service rows in the new order: القيمة, الكمية, البيان, ر.ت
-                    serviceRows.forEach(row => {
-                        invoiceData.push([
-                            row[3], // القيمة
-                            row[2], // الكمية
-                            row[1], // البيان
-                            row[0], // ر.ت
-                            '', 
-                            ''
-                        ]);
-                    });
-
-                    // Add spacing and totals
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push([subtotal.toFixed(3), '', 'الاجمالي قبل الضريبة', '', '', '']);
-                    invoiceData.push([stampTax.toFixed(3), '', 'ضريبة الدمغة 1%', '', '', '']);
-                    invoiceData.push([totalCost.toFixed(3), '', 'الاجمالي شامل الضريبة', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', `المبلغ بالحروف: ${totalInWords}`, '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', 'طريقة السداد:', '', '', '']);
-                    invoiceData.push(['', '', 'يكون السداد نقداً أو بصك مصدق بخزينة الشركة', '', '', '']);
-                    invoiceData.push(['', '', 'بإسم شركة أمادييوس ليبيا للخدمات التقنية المشتركة', '', '', '']);
-                    invoiceData.push(['', '', 'أو بإيداع المبلغ بحساب الشركة رقم 0900003088', '', '', '']);
-                    invoiceData.push(['', '', 'لدى المصرف الليبي الخارجي.', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', 'والســـــــــــــــــــ عليكم ــــــــــــــــــلام', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '.........................', '', '', '']);
-                    invoiceData.push(['', '', 'فوزي الصديق ابوحميدة', '', '', '']);
-                    invoiceData.push(['', '', 'مدير الشؤون الادارية و المالية', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', 'ملف الصادر الفواتير ــــــــــــــــ اكرم', '', '', '']);
-
-                    // Create worksheet
-                    const invoiceSheet = XLSX.utils.aoa_to_sheet(invoiceData);
-                    
-                    // Set RTL direction for the worksheet
-                    if (!invoiceSheet['!ref']) invoiceSheet['!ref'] = 'A1:F60';
-                    
-                    // Add worksheet properties for RTL
-                    invoiceSheet['!worksheetViews'] = [{
-                        // rightToLeft: true,
-                        showGridLines: true,
-                        showRowColHeaders: true,
-                        tabSelected: true,
-                        topLeftCell: 'A1'
-                    }];
-                    
-                    // Set column widths for Arabic text (6 columns now)
-                    invoiceSheet['!cols'] = [
-                        { width: 15 }, // القيمة
-                        { width: 12 }, // الكمية
-                        { width: 50 }, // البيان
-                        { width: 8 },  // ر.ت
-                        { width: 15 }, // Extra space
-                        { width: 15 }  // Extra space
-                    ];
-                    
-                    // Set cell styles for RTL text alignment
-                    const range = XLSX.utils.decode_range(invoiceSheet['!ref']);
-                    for (let R = range.s.r; R <= range.e.r; ++R) {
-                        for (let C = range.s.c; C <= range.e.c; ++C) {
-                            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                            if (!invoiceSheet[cellAddress]) continue;
-                            
-                            if (!invoiceSheet[cellAddress].s) invoiceSheet[cellAddress].s = {};
-                            invoiceSheet[cellAddress].s.alignment = {
-                                horizontal: 'right',
-                                vertical: 'center',
-                                readingOrder: 2 // RTL reading order
-                            };
-                        }
-                    }
-
-                    // Add merges for better layout
-                    if (!invoiceSheet['!merges']) invoiceSheet['!merges'] = [];
-                    
-                    // Merge company name cell (spans 4 columns)
-                    invoiceSheet['!merges'].push({ s: { r: 2, c: 1 }, e: { r: 2, c: 4 } });
-                    // Merge date cell (spans 2 columns)
-                    invoiceSheet['!merges'].push({ s: { r: 4, c: 2 }, e: { r: 4, c: 4 } });
-                    // Merge office name cell (spans 4 columns for wider display)
-                    invoiceSheet['!merges'].push({ s: { r: 6, c: 1 }, e: { r: 6, c: 4 } });
-                    // Merge greeting and IATA cells (2 columns each)
-                    invoiceSheet['!merges'].push({ s: { r: 8, c: 1 }, e: { r: 8, c: 2 } });
-                    invoiceSheet['!merges'].push({ s: { r: 8, c: 3 }, e: { r: 8, c: 4 } });
-                    // Merge invoice number cell (spans 3 columns)
-                    invoiceSheet['!merges'].push({ s: { r: 11, c: 2 }, e: { r: 11, c: 4 } });
-                    // Merge request cell (spans 4 columns)
-                    invoiceSheet['!merges'].push({ s: { r: 13, c: 2 }, e: { r: 13, c: 5 } });
-
-                    // Create a clean sheet name (remove special characters)
-                    const cleanOfficeId = office.officeId.replace(/[^\w\s]/gi, '').substring(0, 31);
-                    const sheetName = `فاتورة_${cleanOfficeId}`;
-                    
-                    // Add sheet to workbook
-                    XLSX.utils.book_append_sheet(invoiceWorkbook, invoiceSheet, sheetName);
-                });
-
-                // Create a summary sheet with all invoices in RTL
-                const allInvoicesData = [
-                    ['', '', '', '', '', '', 'ملخص فواتير جميع المكاتب - AMADEUS SERVICES'],
-                    ['', '', '', '', '', '', ''],
-                    ['الحالة', 'المبلغ الإجمالي', 'إجمالي العدد', 'رقم الآياتا', 'الاسم العربي', 'اسم المكتب', 'رمز المكتب'],
-                    ['', '', '', '', '', '', '']
-                ];
-
-                officesWithTransactions.forEach(office => {
-                    const totalCost = office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost;
-                    const totalCount = office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount;
-                    const stampTax = totalCost * 0.01;
-                    const finalTotal = totalCost + stampTax;
-                    
-                    allInvoicesData.push([
-                        'تم إنشاء الفاتورة',
-                        finalTotal.toFixed(3),
-                        totalCount.toLocaleString(),
-                        office.iataNumber,
-                        office.officeArabicName,
-                        office.officeName,
-                        office.officeId
-                    ]);
-                });
-
-                const summarySheet = XLSX.utils.aoa_to_sheet(allInvoicesData);
-                
-                // Set RTL direction for summary sheet
-                summarySheet['!worksheetViews'] = [{
-                    rightToLeft: true,
-                    showGridLines: true,
-                    showRowColHeaders: true,
-                    tabSelected: true,
-                    topLeftCell: 'A1'
-                }];
-                
-                summarySheet['!cols'] = [
-                    { width: 15 }, // الحالة
-                    { width: 15 }, // المبلغ الإجمالي
-                    { width: 15 }, // إجمالي العدد
-                    { width: 15 }, // رقم الآياتا
-                    { width: 25 }, // الاسم العربي
-                    { width: 25 }, // اسم المكتب
-                    { width: 15 }  // رمز المكتب
-                ];
-                
-                // Set cell styles for RTL text alignment in summary sheet
-                if (summarySheet['!ref']) {
-                    const range = XLSX.utils.decode_range(summarySheet['!ref']);
-                    for (let R = range.s.r; R <= range.e.r; ++R) {
-                        for (let C = range.s.c; C <= range.e.c; ++C) {
-                            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                            if (!summarySheet[cellAddress]) continue;
-                            
-                            if (!summarySheet[cellAddress].s) summarySheet[cellAddress].s = {};
-                            summarySheet[cellAddress].s.alignment = {
-                                horizontal: 'right',
-                                vertical: 'center',
-                                readingOrder: 2 // RTL reading order
-                            };
-                        }
-                    }
+                    if (!invoiceSheet[cellAddress].s) invoiceSheet[cellAddress].s = {};
+                    invoiceSheet[cellAddress].s.alignment = {
+                        horizontal: 'right',
+                        vertical: 'center',
+                        readingOrder: 2 // RTL reading order
+                    };
                 }
+            }
 
-                // Add summary sheet at the beginning
-                XLSX.utils.book_append_sheet(invoiceWorkbook, summarySheet, 'ملخص_جميع_الفواتير');
-                
-                // Set workbook properties for RTL
-                if (!invoiceWorkbook.Workbook) invoiceWorkbook.Workbook = {};
-                if (!invoiceWorkbook.Workbook.Views) invoiceWorkbook.Workbook.Views = [];
-                invoiceWorkbook.Workbook.Views.push({
-                    rightToLeft: true
-                });
-                
-                // Move summary to first position
-                const sheetNames = invoiceWorkbook.SheetNames;
-                const summaryIndex = sheetNames.indexOf('ملخص_جميع_الفواتير');
-                if (summaryIndex > 0) {
-                    sheetNames.splice(summaryIndex, 1);
-                    sheetNames.unshift('ملخص_جميع_الفواتير');
+            // Add merges for better layout (ADJUSTED for new column positions)
+            if (!invoiceSheet['!merges']) invoiceSheet['!merges'] = [];
+            
+            // Merge company name cell (adjusted for RTL)
+            invoiceSheet['!merges'].push({ s: { r: 2, c: 1 }, e: { r: 2, c: 4 } });
+            // Merge date cell
+            invoiceSheet['!merges'].push({ s: { r: 4, c: 2 }, e: { r: 4, c: 4 } });
+            // Merge office name cell
+            invoiceSheet['!merges'].push({ s: { r: 6, c: 2 }, e: { r: 6, c: 5 } });
+            // Merge greeting and IATA cells
+            invoiceSheet['!merges'].push({ s: { r: 8, c: 2 }, e: { r: 8, c: 3 } });
+            invoiceSheet['!merges'].push({ s: { r: 8, c: 4 }, e: { r: 8, c: 5 } });
+            // Merge invoice number cell
+            invoiceSheet['!merges'].push({ s: { r: 11, c: 1 }, e: { r: 11, c: 4 } });
+            // Merge request cell
+            invoiceSheet['!merges'].push({ s: { r: 13, c: 1 }, e: { r: 13, c: 5 } });
+
+            // Create a clean sheet name (remove special characters)
+            const cleanOfficeId = office.officeId.replace(/[^\w\s]/gi, '').substring(0, 31);
+            const sheetName = `فاتورة_${cleanOfficeId}`;
+            
+            // Add sheet to workbook
+            XLSX.utils.book_append_sheet(invoiceWorkbook, invoiceSheet, sheetName);
+        });
+
+        // Create a summary sheet with REVERSED columns for RTL
+        const allInvoicesData = [
+            ['', 'ملخص فواتير جميع المكاتب - AMADEUS SERVICES', '', '', '', '', ''],
+            ['', '', '', '', '', '', ''],
+            // REVERSED header: رمز المكتب، اسم المكتب، الاسم العربي، رقم الآياتا، إجمالي العدد، المبلغ الإجمالي، الحالة
+            ['رمز المكتب', 'اسم المكتب', 'الاسم العربي', 'رقم الآياتا', 'إجمالي العدد', 'المبلغ الإجمالي', 'الحالة'],
+            ['', '', '', '', '', '', '']
+        ];
+
+        officesWithTransactions.forEach(office => {
+            const totalCost = office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost;
+            const totalCount = office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount;
+            // const stampTax = totalCost * 0.01;
+            const finalTotal = totalCost ;
+            
+            // REVERSED order for RTL display
+            allInvoicesData.push([
+                office.officeId,           // رمز المكتب (rightmost visually)
+                office.officeName,         // اسم المكتب
+                office.officeArabicName,   // الاسم العربي
+                office.iataNumber,         // رقم الآياتا
+                totalCount.toLocaleString(), // إجمالي العدد
+                finalTotal.toFixed(3),     // المبلغ الإجمالي
+                'تم إنشاء الفاتورة'          // الحالة (leftmost visually)
+            ]);
+        });
+
+        const summarySheet = XLSX.utils.aoa_to_sheet(allInvoicesData);
+        
+        // Set column widths for RTL summary (REVERSED order)
+        summarySheet['!cols'] = [
+            { width: 15 }, // رمز المكتب (appears rightmost)
+            { width: 25 }, // اسم المكتب
+            { width: 25 }, // الاسم العربي
+            { width: 15 }, // رقم الآياتا
+            { width: 15 }, // إجمالي العدد
+            { width: 15 }, // المبلغ الإجمالي
+            { width: 15 }  // الحالة (appears leftmost)
+        ];
+        
+        // Set cell styles for RTL text alignment in summary sheet
+        if (summarySheet['!ref']) {
+            const range = XLSX.utils.decode_range(summarySheet['!ref']);
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                    if (!summarySheet[cellAddress]) continue;
+                    
+                    if (!summarySheet[cellAddress].s) summarySheet[cellAddress].s = {};
+                    summarySheet[cellAddress].s.alignment = {
+                        horizontal: 'right',
+                        vertical: 'center',
+                        readingOrder: 2 // RTL reading order
+                    };
                 }
-
-                // Download the invoice workbook
-                progressText.textContent = 'تحميل ملف الفواتير...';
-                XLSX.writeFile(invoiceWorkbook, 'فواتير_مكاتب_أماديوس.xlsx');
-                
-                debugContent.innerHTML += `<p><strong>نجح!</strong> تم إنشاء ${officesWithTransactions.length} فاتورة فردية عربية</p>`;
-                alert(`تم إنشاء ${officesWithTransactions.length} فاتورة فردية بنجاح!\nتم تحميل الملف باسم: فواتير_مكاتب_أماديوس.xlsx`);
-                
-            } catch (error) {
-                console.error('Error generating invoices:', error);
-                alert('خطأ في إنشاء الفواتير: ' + error.message);
-                debugContent.innerHTML += `<p><strong>خطأ في إنشاء الفواتير:</strong> ${error.message}</p>`;
-            } finally {
-                progressDiv.style.display = 'none';
             }
         }
+
+        // Add summary sheet at the beginning
+        XLSX.utils.book_append_sheet(invoiceWorkbook, summarySheet, 'ملخص_جميع_الفواتير');
+        
+        // Move summary to first position
+        const sheetNames = invoiceWorkbook.SheetNames;
+        const summaryIndex = sheetNames.indexOf('ملخص_جميع_الفواتير');
+        if (summaryIndex > 0) {
+            sheetNames.splice(summaryIndex, 1);
+            sheetNames.unshift('ملخص_جميع_الفواتير');
+        }
+
+        // Download the invoice workbook
+        progressText.textContent = 'تحميل ملف الفواتير...';
+        XLSX.writeFile(invoiceWorkbook, 'فواتير_مكاتب_أماديوس.xlsx');
+        
+        debugContent.innerHTML += `<p><strong>نجح!</strong> تم إنشاء ${officesWithTransactions.length} فاتورة فردية عربية مع ترتيب الأعمدة من اليمين لليسار</p>`;
+        alert(`تم إنشاء ${officesWithTransactions.length} فاتورة فردية بنجاح!\nتم تحميل الملف باسم: فواتير_مكاتب_أماديوس.xlsx\n\nملاحظة: الأعمدة مرتبة من اليمين إلى اليسار للعرض العربي الصحيح`);
+        
+    } catch (error) {
+        console.error('Error generating invoices:', error);
+        alert('خطأ في إنشاء الفواتير: ' + error.message);
+        debugContent.innerHTML += `<p><strong>خطأ في إنشاء الفواتير:</strong> ${error.message}</p>`;
+    } finally {
+        progressDiv.style.display = 'none';
+    }
+}
     </script>
 </body>
 </html>
