@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Multi-File Excel Consolidator</title>
+    <title>Enhanced Multi-File Excel Consolidator with Months</title>
     <style>
         body {
             max-width: 1400px;
@@ -285,6 +285,15 @@
             color: #155724;
         }
 
+        .month-info {
+            background: #fff3cd;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -309,119 +318,36 @@
     ">
     <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
         <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
-           مجموعة معالجة تقارير أماديوس
+           مجموعة معالجة تقارير أماديوس مع الأشهر
         </h2>
         <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
-           Amadeus Reports Processing Suite
+           Amadeus Reports Processing Suite with Months
         </h2>
-        <div class="nav-links" style="
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            justify-content: center;
-            align-items: center;
-            direction: ltr;
+        <p style="
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin: 1rem 0 0 0;
+            font-size: 0.85rem;
         ">
-            <a href="ATC&MPT.html" style="
-                background: rgba(255,255,255,0.2);
-                color: white;
-                text-decoration: none;
-                padding: 8px 16px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                border: 1px solid rgba(255,255,255,0.3);
-            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-               ATC & MPT Reports
-            </a>
-            <a href="wep.html" style="
-                background: rgba(255,255,255,0.2);
-                color: white;
-                text-decoration: none;
-                padding: 8px 16px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                border: 1px solid rgba(255,255,255,0.3);
-            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-               WEP Reports
-            </a>
-            <a href="pnr.html" style="
-                background: rgba(255,255,255,0.2);
-                color: white;
-                text-decoration: none;
-                padding: 8px 16px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                border: 1px solid rgba(255,255,255,0.3);
-            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-               PNR Reports
-            </a>
-            <a href="mpe.html" style="
-                background: rgba(255,255,255,0.2);
-                color: white;
-                text-decoration: none;
-                padding: 8px 16px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                border: 1px solid rgba(255,255,255,0.3);
-            " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-               onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-                 MPE Reports
-            </a>
-            <a href="invoice.html" style="
-                background: rgba(255,255,255,0.4);
-                color: white;
-                text-decoration: none;
-                padding: 8px 16px;
-                border-radius: 25px;
-                font-size: 0.9rem;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                border: 2px solid rgba(255,255,255,0.6);
-                box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            " onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
-               onmouseout="this.style.background='rgba(255,255,255,0.4)'">
-               الموحد Consolidator
-            </a>
-        </div>
-       
+            الآن يتم إضافة معلومات الأشهر تلقائياً إلى وصف الخدمات في الفواتير
+        </p>
+        <p style="
+            color: rgba(255,255,255,0.9);
+            text-align: center;
+            margin: 1rem 0 0 0;
+            font-size: 0.85rem;
+        ">
+            Month information is now automatically added to service descriptions in invoices
+        </p>
     </div>
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-    <p style="
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-        margin: 1rem 0 0 0;
-        font-size: 0.85rem;
-    ">
-        الآن يمكنك رفع ملفات متعددة لكل نوع تقرير - ATC, WEP, PNR, MPT, MPE
-    </p>
-    <p style="
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-        margin: 1rem 0 0 0;
-        font-size: 0.85rem;
-    ">
-        Now you can upload multiple files for each report type
-    </p>
-</div>
 </nav>
 
     <div class="container">
-        <h1>موحد ملفات Excel المحسّن - رفع ملفات متعددة</h1>
-        <h1>Enhanced Excel Files Consolidator - Multiple Files Support</h1>
+        <h1>موحد ملفات Excel المحسّن مع معلومات الأشهر</h1>
+        <h1>Enhanced Excel Files Consolidator with Month Information</h1>
 
-        <p class="description">دمج ملفات متعددة من كل نوع تقرير في ملف واحد وإنشاء الفواتير</p>
-        <p class="description">Consolidate multiple files of each report type into one file and generate invoices</p>
+        <p class="description">دمج ملفات متعددة من كل نوع تقرير مع إضافة معلومات الأشهر للفواتير</p>
+        <p class="description">Consolidate multiple files with automatic month range extraction for invoices</p>
         
         <div class="upload-section">
             <!-- Bills Master File -->
@@ -447,6 +373,7 @@
                 <button class="clear-all-btn" onclick="clearFileGroup('atc')">مسح الكل</button>
                 <div class="file-list" id="atcList"></div>
                 <div class="file-stats" id="atcStats"></div>
+                <div class="month-info" id="atcMonths"></div>
             </div>
 
             <!-- WEP Files -->
@@ -462,6 +389,7 @@
                 <button class="clear-all-btn" onclick="clearFileGroup('wep')">مسح الكل</button>
                 <div class="file-list" id="wepList"></div>
                 <div class="file-stats" id="wepStats"></div>
+                <div class="month-info" id="wepMonths"></div>
             </div>
 
             <!-- PNR Files -->
@@ -477,6 +405,7 @@
                 <button class="clear-all-btn" onclick="clearFileGroup('pnr')">مسح الكل</button>
                 <div class="file-list" id="pnrList"></div>
                 <div class="file-stats" id="pnrStats"></div>
+                <div class="month-info" id="pnrMonths"></div>
             </div>
 
             <!-- MPT Files -->
@@ -492,6 +421,7 @@
                 <button class="clear-all-btn" onclick="clearFileGroup('mpt')">مسح الكل</button>
                 <div class="file-list" id="mptList"></div>
                 <div class="file-stats" id="mptStats"></div>
+                <div class="month-info" id="mptMonths"></div>
             </div>
 
             <!-- MPE Files -->
@@ -507,6 +437,7 @@
                 <button class="clear-all-btn" onclick="clearFileGroup('mpe')">مسح الكل</button>
                 <div class="file-list" id="mpeList"></div>
                 <div class="file-stats" id="mpeStats"></div>
+                <div class="month-info" id="mpeMonths"></div>
             </div>
 
             <div class="progress" id="progressDiv">
@@ -519,12 +450,12 @@
             </div>
 
             <button id="processBtn" class="process-btn" disabled>
-                معالجة ودمج جميع الملفات - Process & Consolidate All Files
+                معالجة ودمج جميع الملفات مع الأشهر - Process & Consolidate All Files with Months
             </button>
         </div>
 
         <div id="resultsSection" class="results-section" style="display: none;">
-            <h3>معاينة الملخص الموحد المحسّن - Enhanced Consolidated Summary</h3>
+            <h3>معاينة الملخص الموحد مع معلومات الأشهر - Enhanced Consolidated Summary with Month Information</h3>
             <div class="table-container">
                 <table id="summaryTable" class="invoice-table">
                     <thead>
@@ -556,14 +487,14 @@
             </button>
             
             <button id="generateInvoicesBtn" class="download-btn" style="background: #dc3545; margin-right: 10px;">
-                إنشاء فواتير المكاتب الفردية - Generate Individual Invoices
+                إنشاء فواتير المكاتب مع الأشهر - Generate Invoices with Months
             </button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        // Enhanced file management system
+        // Enhanced file management system with month tracking
         let fileCollections = {
             bills: [],
             atc: [],
@@ -576,6 +507,13 @@
         let consolidatedWorkbook = null;
         let masterSummary = {};
         let officeDetails = {};
+        let monthInformation = {
+            atc: new Set(),
+            wep: new Set(),
+            pnr: new Set(),
+            mpt: new Set(),
+            mpe: new Set()
+        };
 
         // DOM elements
         const fileInputs = {
@@ -640,6 +578,7 @@
             const counter = document.getElementById(`${type}Counter`);
             const list = document.getElementById(`${type}List`);
             const stats = document.getElementById(`${type}Stats`);
+            const monthsDiv = document.getElementById(`${type}Months`);
 
             // Update counter
             counter.textContent = files.length;
@@ -649,6 +588,7 @@
             if (files.length === 0) {
                 list.style.display = 'none';
                 if (stats) stats.style.display = 'none';
+                if (monthsDiv) monthsDiv.style.display = 'none';
                 return;
             }
 
@@ -670,6 +610,17 @@
                     المجموع: <strong>${(totalSize / 1024).toFixed(1)} KB</strong>
                 `;
             }
+
+            // Update month information display
+            if (monthsDiv && type !== 'bills') {
+                const months = Array.from(monthInformation[type]).sort((a, b) => a - b);
+                if (months.length > 0) {
+                    monthsDiv.style.display = 'block';
+                    monthsDiv.innerHTML = `الأشهر المتاحة: ${months.join(', ')}`;
+                } else {
+                    monthsDiv.style.display = 'none';
+                }
+            }
         }
 
         function removeFile(type, index) {
@@ -680,6 +631,7 @@
 
         function clearFileGroup(type) {
             fileCollections[type] = [];
+            monthInformation[type] = new Set();
             updateFileDisplay(type);
             updateProcessButton();
         }
@@ -718,6 +670,9 @@
         async function processAllFiles() {
             // Reset data
             masterSummary = {};
+            Object.keys(monthInformation).forEach(key => {
+                monthInformation[key] = new Set();
+            });
             
             // Read bills.xlsx
             progressText.textContent = 'قراءة ملف bills.xlsx...';
@@ -749,6 +704,7 @@
             
             // Combined data from all files of this type
             let combinedSummaryData = [];
+            let monthsFound = new Set();
             
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -791,6 +747,14 @@
                     
                     debugContent.innerHTML += `<p>الملف ${i + 1}: ${summaryData.length} صف</p>`;
                     
+                    // Extract month information from data
+                    summaryData.forEach(row => {
+                        const month = row['Month'] || row['month'] || row['MONTH'];
+                        if (month) {
+                            monthsFound.add(parseInt(month));
+                        }
+                    });
+                    
                     // Add file info to each row
                     summaryData.forEach(row => {
                         row._sourceFile = file.name;
@@ -801,9 +765,16 @@
                 }
             }
 
-            debugContent.innerHTML += `<p><strong>${fileType.toUpperCase()}: إجمالي ${combinedSummaryData.length} صف من ${files.length} ملف</strong></p>`;
+            // Update month information for this file type
+            monthInformation[fileType] = monthsFound;
+            updateFileDisplay(fileType);
 
-            // Process combined data
+            debugContent.innerHTML += `<p><strong>${fileType.toUpperCase()}: إجمالي ${combinedSummaryData.length} صف من ${files.length} ملف</strong></p>`;
+            if (monthsFound.size > 0) {
+                debugContent.innerHTML += `<p><strong>الأشهر الموجودة في ${fileType.toUpperCase()}: ${Array.from(monthsFound).sort().join(', ')}</strong></p>`;
+            }
+
+            // Process combined data and aggregate by office
             const officeAggregation = {};
             
             combinedSummaryData.forEach((row, index) => {
@@ -828,13 +799,20 @@
                         officeAggregation[cleanOfficeId] = {
                             totalCount: 0,
                             totalCost: 0,
-                            files: new Set()
+                            files: new Set(),
+                            months: new Set()
                         };
                     }
                     
                     officeAggregation[cleanOfficeId].totalCount += totalCount || 0;
                     officeAggregation[cleanOfficeId].totalCost += totalCost || 0;
                     officeAggregation[cleanOfficeId].files.add(row._sourceFile || 'Unknown');
+                    
+                    // Add month information
+                    const month = row['Month'] || row['month'] || row['MONTH'];
+                    if (month) {
+                        officeAggregation[cleanOfficeId].months.add(parseInt(month));
+                    }
                 }
             });
 
@@ -852,17 +830,18 @@
                         officeName: officeInfo.name,
                         officeArabicName: officeInfo.arabicName,
                         iataNumber: officeInfo.iataNumber,
-                        atcCount: 0, atcCost: 0,
-                        wepCount: 0, wepCost: 0,
-                        pnrCount: 0, pnrCost: 0,
-                        mptCount: 0, mptCost: 0,
-                        mpeCount: 0, mpeCost: 0
+                        atcCount: 0, atcCost: 0, atcMonths: new Set(),
+                        wepCount: 0, wepCost: 0, wepMonths: new Set(),
+                        pnrCount: 0, pnrCost: 0, pnrMonths: new Set(),
+                        mptCount: 0, mptCost: 0, mptMonths: new Set(),
+                        mpeCount: 0, mpeCost: 0, mpeMonths: new Set()
                     };
                 }
                 
                 const aggData = officeAggregation[officeId];
                 masterSummary[officeId][fileType + 'Count'] = aggData.totalCount;
                 masterSummary[officeId][fileType + 'Cost'] = aggData.totalCost;
+                masterSummary[officeId][fileType + 'Months'] = aggData.months;
             });
 
             debugContent.innerHTML += `<p><strong>${fileType.toUpperCase()}: تم دمج البيانات لـ ${Object.keys(officeAggregation).length} مكتب</strong></p>`;
@@ -972,14 +951,19 @@
                     'IATA Number': office.iataNumber,
                     'ATC Count': office.atcCount,
                     'ATC Cost': office.atcCost,
+                    'ATC Months': Array.from(office.atcMonths || []).sort().join(','),
                     'WEP Count': office.wepCount,
                     'WEP Cost': office.wepCost,
+                    'WEP Months': Array.from(office.wepMonths || []).sort().join(','),
                     'PNR Count': office.pnrCount,
                     'PNR Cost': office.pnrCost,
+                    'PNR Months': Array.from(office.pnrMonths || []).sort().join(','),
                     'MPT Count': office.mptCount,
                     'MPT Cost': office.mptCost,
+                    'MPT Months': Array.from(office.mptMonths || []).sort().join(','),
                     'MPE Count': office.mpeCount,
                     'MPE Cost': office.mpeCost,
+                    'MPE Months': Array.from(office.mpeMonths || []).sort().join(','),
                     'Total Cost': office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost,
                     'Total Count': office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount
                 }));
@@ -998,8 +982,8 @@
             const masterSheet = XLSX.utils.json_to_sheet(summaryArray);
             
             // Add to workbook
-            consolidatedWorkbook.Sheets['Master_Summary'] = masterSheet;
-            consolidatedWorkbook.SheetNames.unshift('Master_Summary');
+            consolidatedWorkbook.Sheets['Master_Summary_With_Months'] = masterSheet;
+            consolidatedWorkbook.SheetNames.unshift('Master_Summary_With_Months');
         }
 
         function displayResults() {
@@ -1019,14 +1003,19 @@
                     iataNumber: office.iataNumber,
                     atcCount: office.atcCount,
                     atcCost: office.atcCost,
+                    atcMonths: office.atcMonths || new Set(),
                     wepCount: office.wepCount,
                     wepCost: office.wepCost,
+                    wepMonths: office.wepMonths || new Set(),
                     pnrCount: office.pnrCount,
                     pnrCost: office.pnrCost,
+                    pnrMonths: office.pnrMonths || new Set(),
                     mptCount: office.mptCount,
                     mptCost: office.mptCost,
+                    mptMonths: office.mptMonths || new Set(),
                     mpeCount: office.mpeCount,
                     mpeCost: office.mpeCost,
+                    mpeMonths: office.mpeMonths || new Set(),
                     totalCost: office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost,
                     totalCount: office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount
                 }));
@@ -1067,20 +1056,34 @@
                 return;
             }
 
-            XLSX.writeFile(consolidatedWorkbook, 'bills_consolidated_multi_files.xlsx');
+            XLSX.writeFile(consolidatedWorkbook, 'bills_consolidated_with_months.xlsx');
         });
 
-        // Generate individual office invoices (same as before)
+        // Helper function to format month ranges
+        function formatMonthRange(monthsSet) {
+            if (!monthsSet || monthsSet.size === 0) return '';
+            
+            const months = Array.from(monthsSet).sort((a, b) => a - b);
+            if (months.length === 1) {
+                return ` للشهر ${months[0]}`;
+            } else if (months.length === 2 && months[1] === months[0] + 1) {
+                return ` للشهرين ${months[0]},${months[1]}`;
+            } else {
+                return ` للاشهر ${months.join(',')}`;
+            }
+        }
+
+        // Generate individual office invoices with month information
         generateInvoicesBtn.addEventListener('click', () => {
             if (!consolidatedWorkbook || !masterSummary) {
                 alert('لا توجد بيانات متاحة. يرجى معالجة الملفات أولاً.');
                 return;
             }
 
-            generateOfficeInvoices();
+            generateOfficeInvoicesWithMonths();
         });
 
-        // Function to convert number to Arabic words - FIXED for correct Arabic format
+        // Function to convert number to Arabic words
         function numberToArabic(num) {
             const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
             const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
@@ -1113,16 +1116,14 @@
                 num %= 100;
             }
 
-            // Handle tens and ones - FIXED: ones come before tens in Arabic
+            // Handle tens and ones - ones come before tens in Arabic
             if (num >= 20) {
                 const onesDigit = num % 10;
                 const tensDigit = Math.floor(num / 10);
                 
                 if (onesDigit !== 0) {
-                    // In Arabic: "seven and thirty" not "thirty and seven"
                     result += ones[onesDigit] + ' و' + tens[tensDigit];
                 } else {
-                    // Just the tens (like "thirty")
                     result += tens[tensDigit];
                 }
             } else if (num >= 10) {
@@ -1148,10 +1149,10 @@
             return `${day} ${months[month - 1]} ${year}`;
         }
 
-        function generateOfficeInvoices() {
+        function generateOfficeInvoicesWithMonths() {
             try {
                 progressDiv.style.display = 'block';
-                progressText.textContent = 'جاري إنشاء فواتير المكاتب الفردية...';
+                progressText.textContent = 'جاري إنشاء فواتير المكاتب الفردية مع معلومات الأشهر...';
                 
                 const invoiceWorkbook = XLSX.utils.book_new();
                 
@@ -1165,7 +1166,7 @@
                     })
                     .sort((a, b) => a.officeId.localeCompare(b.officeId));
 
-                debugContent.innerHTML += `<p>إنشاء فواتير لـ ${officesWithTransactions.length} مكتب...</p>`;
+                debugContent.innerHTML += `<p>إنشاء فواتير لـ ${officesWithTransactions.length} مكتب مع معلومات الأشهر...</p>`;
 
                 // Create invoice sheet for each office
                 officesWithTransactions.forEach((office, index) => {
@@ -1178,11 +1179,12 @@
                     let rowCounter = 1;
                     const serviceRows = [];
 
-                    // Add service lines (only for services with non-zero values)
+                    // Add service lines with month information (only for services with non-zero values)
                     if (office.mpeCost > 0) {
+                        const monthRange = formatMonthRange(office.mpeMonths);
                         serviceRows.push([
                             rowCounter++, 
-                            'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPE', 
+                            `استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPE${monthRange}`, 
                             office.mpeCount, 
                             office.mpeCost.toFixed(3)
                         ]);
@@ -1190,9 +1192,10 @@
                     }
                     
                     if (office.mptCost > 0) {
+                        const monthRange = formatMonthRange(office.mptMonths);
                         serviceRows.push([
                             rowCounter++, 
-                            'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPT', 
+                            `استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPT${monthRange}`, 
                             office.mptCount, 
                             office.mptCost.toFixed(3)
                         ]);
@@ -1200,9 +1203,10 @@
                     }
 
                     if (office.atcCost > 0) {
+                        const monthRange = formatMonthRange(office.atcMonths);
                         serviceRows.push([
                             rowCounter++, 
-                            'استخدام خاصية تغيير التذاكر ATC', 
+                            `استخدام خاصية تغيير التذاكر ATC${monthRange}`, 
                             office.atcCount, 
                             office.atcCost.toFixed(3)
                         ]);
@@ -1210,9 +1214,10 @@
                     }
 
                     if (office.wepCost > 0) {
+                        const monthRange = formatMonthRange(office.wepMonths);
                         serviceRows.push([
                             rowCounter++, 
-                            'استخدام الخدمات الإلكترونية WEP', 
+                            `استخدام الخدمات الإلكترونية WEP${monthRange}`, 
                             office.wepCount, 
                             office.wepCost.toFixed(3)
                         ]);
@@ -1220,9 +1225,10 @@
                     }
 
                     if (office.pnrCost > 0) {
+                        const monthRange = formatMonthRange(office.pnrMonths);
                         serviceRows.push([
                             rowCounter++, 
-                            'استخدام خاصية استدعاء الحجوزات PNR', 
+                            `استخدام خاصية استدعاء الحجوزات PNR${monthRange}`, 
                             office.pnrCount, 
                             office.pnrCost.toFixed(3)
                         ]);
@@ -1259,7 +1265,7 @@
                         invoiceData.push([
                             '', '',
                             row[0], // ر.ت
-                            row[1], // البيان
+                            row[1], // البيان (with month info)
                             row[2], // الكمية
                             row[3]  // القيمة
                         ]);
@@ -1276,13 +1282,12 @@
                     invoiceData.push(['', '', '', 'يكون السداد نقداً أو بصك مصدق بخزينة الشركة', '', '']);
                     invoiceData.push(['', '', '', 'بإسم شركة أمادييوس ليبيا للخدمات التقنية المشتركة', '', '']);
                     invoiceData.push(['', '', '', 'أو بإيداع المبلغ بحساب الشركة رقم 0900003088', '', '']);
-                    invoiceData.push(['', '', '', 'لدى المصرف الليبي الخارجي.', '', '']);
+                   invoiceData.push(['', '', '', 'لدى المصرف الليبي الخارجي.', '', '']);
                     invoiceData.push(['', '', '', '', '', '']);
                     invoiceData.push(['', '', '', '', '', '']);
                     invoiceData.push(['', '', '', 'والســـــــــــــــــــ عليكم ــــــــــــــــــلام', '', '']);
                     invoiceData.push(['', '', '', '', '', '']);
                     invoiceData.push(['', '', '', '.........................', '', '']);
-                    invoiceData.push(['', '', '', 'فوزي الصديق ابوحميدة', '', '']);
                     invoiceData.push(['', '', '', 'مدير الشؤون الادارية و المالية', '', '']);
 
                     // Create worksheet
@@ -1292,12 +1297,12 @@
                     
                     // Set column widths for RTL layout - INCREASED WIDTHS
                     invoiceSheet['!cols'] = [
-                        { width: 20 }, // Empty space column 1 (increased from 15)
-                        { width: 20 }, // Empty space column 2 (increased from 15)
-                        { width: 20 }, // ر.ت column (increased from 8)
-                        { width: 70 }, // البيان column - service description (increased from 50)
-                        { width: 35 }, // الكمية column - quantity (increased from 12)
-                        { width: 20 }  // القيمة column - cost (increased from 15)
+                        { width: 20 }, // Empty space column 1
+                        { width: 20 }, // Empty space column 2
+                        { width: 20 }, // ر.ت column
+                        { width: 80 }, // البيان column - service description (increased for month info)
+                        { width: 35 }, // الكمية column - quantity
+                        { width: 20 }  // القيمة column - cost
                     ];
                     
                     // Set RTL text alignment
@@ -1323,17 +1328,27 @@
                     XLSX.utils.book_append_sheet(invoiceWorkbook, invoiceSheet, sheetName);
                 });
 
-                // Create summary sheet
+                // Create summary sheet with month information
                 const allInvoicesData = [
-                    ['', 'ملخص فواتير جميع المكاتب - AMADEUS SERVICES - Multi Files', '', '', '', '', ''],
-                    ['', '', '', '', '', '', ''],
-                    ['رمز المكتب', 'اسم المكتب', 'الاسم العربي', 'رقم الآياتا', 'إجمالي العدد', 'المبلغ الإجمالي', 'الحالة'],
-                    ['', '', '', '', '', '', '']
+                    ['', 'ملخص فواتير جميع المكاتب مع الأشهر - AMADEUS SERVICES WITH MONTHS', '', '', '', '', '', ''],
+                    ['', '', '', '', '', '', '', ''],
+                    ['رمز المكتب', 'اسم المكتب', 'الاسم العربي', 'رقم الآياتا', 'إجمالي العدد', 'المبلغ الإجمالي', 'أشهر الخدمات', 'الحالة'],
+                    ['', '', '', '', '', '', '', '']
                 ];
 
                 officesWithTransactions.forEach(office => {
                     const totalCost = office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost;
                     const totalCount = office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount;
+                    
+                    // Collect all months from all services
+                    const allMonths = new Set();
+                    if (office.atcMonths) office.atcMonths.forEach(m => allMonths.add(m));
+                    if (office.wepMonths) office.wepMonths.forEach(m => allMonths.add(m));
+                    if (office.pnrMonths) office.pnrMonths.forEach(m => allMonths.add(m));
+                    if (office.mptMonths) office.mptMonths.forEach(m => allMonths.add(m));
+                    if (office.mpeMonths) office.mpeMonths.forEach(m => allMonths.add(m));
+                    
+                    const monthsText = Array.from(allMonths).sort().join(',') || 'غير محدد';
                     
                     allInvoicesData.push([
                         office.officeId,
@@ -1342,31 +1357,32 @@
                         office.iataNumber,
                         totalCount.toLocaleString(),
                         totalCost.toFixed(3),
-                        'تم إنشاء الفاتورة من ملفات متعددة'
+                        monthsText,
+                        'تم إنشاء الفاتورة مع معلومات الأشهر'
                     ]);
                 });
 
                 const summarySheet = XLSX.utils.aoa_to_sheet(allInvoicesData);
                 summarySheet['!cols'] = [
                     { width: 15 }, { width: 25 }, { width: 25 }, { width: 15 },
-                    { width: 15 }, { width: 15 }, { width: 25 }
+                    { width: 15 }, { width: 15 }, { width: 20 }, { width: 30 }
                 ];
 
-                XLSX.utils.book_append_sheet(invoiceWorkbook, summarySheet, 'ملخص_جميع_الفواتير');
+                XLSX.utils.book_append_sheet(invoiceWorkbook, summarySheet, 'ملخص_الفواتير_مع_الأشهر');
                 
                 // Move summary to first position
                 const sheetNames = invoiceWorkbook.SheetNames;
-                const summaryIndex = sheetNames.indexOf('ملخص_جميع_الفواتير');
+                const summaryIndex = sheetNames.indexOf('ملخص_الفواتير_مع_الأشهر');
                 if (summaryIndex > 0) {
                     sheetNames.splice(summaryIndex, 1);
-                    sheetNames.unshift('ملخص_جميع_الفواتير');
+                    sheetNames.unshift('ملخص_الفواتير_مع_الأشهر');
                 }
 
-                progressText.textContent = 'تحميل ملف الفواتير...';
-                XLSX.writeFile(invoiceWorkbook, 'فواتير_مكاتب_أماديوس_ملفات_متعددة.xlsx');
+                progressText.textContent = 'تحميل ملف الفواتير مع معلومات الأشهر...';
+                XLSX.writeFile(invoiceWorkbook, 'فواتير_أماديوس_مع_الأشهر.xlsx');
                 
-                debugContent.innerHTML += `<p><strong>نجح!</strong> تم إنشاء ${officesWithTransactions.length} فاتورة من ملفات متعددة</p>`;
-                alert(`تم إنشاء ${officesWithTransactions.length} فاتورة بنجاح من الملفات المتعددة!\nتم تحميل الملف باسم: فواتير_مكاتب_أماديوس_ملفات_متعددة.xlsx`);
+                debugContent.innerHTML += `<p><strong>نجح!</strong> تم إنشاء ${officesWithTransactions.length} فاتورة مع معلومات الأشهر</p>`;
+                alert(`تم إنشاء ${officesWithTransactions.length} فاتورة بنجاح مع معلومات الأشهر!\nتم تحميل الملف باسم: فواتير_أماديوس_مع_الأشهر.xlsx`);
                 
             } catch (error) {
                 console.error('Error generating invoices:', error);
@@ -1382,7 +1398,7 @@
             updateFileDisplay(type);
         });
 
-        console.log('Enhanced Multi-File Consolidator loaded successfully!');
+        console.log('Enhanced Multi-File Consolidator with Months loaded successfully!');
     </script>
 </body>
 </html>
