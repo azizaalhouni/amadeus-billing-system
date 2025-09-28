@@ -542,6 +542,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                         <thead>
                             <tr>
                                 <th>Office ID</th>
+                                <th>Month</th>
+                                <th>Year</th>
                                 <th>Total Count</th>
                                 <th>Cost per Transaction</th>
                                 <th>Total Cost</th>
@@ -562,6 +564,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                             <tr>
                                 <th>Row</th>
                                 <th>Office ID</th>
+                                <th>Month</th>
+                                <th>Year</th>
                                 <th>Transactions</th>
                                 <th>Service Type</th>
                                 <th>Date</th>
@@ -660,6 +664,43 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             const allLines = content.split('\n');
             console.log('Total lines:', allLines.length);
             
+            // Extract month from period header
+            let reportMonth = '';
+            let reportMonthName = '';
+            let reportYear = '';
+            
+            const periodLine = allLines.find(line => line.includes('*PERIOD'));
+            if (periodLine) {
+                // Look for patterns like "01APR2024" or "APR2024"
+                const periodMatch = periodLine.match(/(\d{2})?([A-Z]{3})(\d{4})/);
+                if (periodMatch) {
+                    const monthAbbr = periodMatch[2];
+                    reportYear = periodMatch[3];
+                    
+                    const monthMap = {
+                        'JAN': { num: '01', name: 'January' },
+                        'FEB': { num: '02', name: 'February' },
+                        'MAR': { num: '03', name: 'March' },
+                        'APR': { num: '04', name: 'April' },
+                        'MAY': { num: '05', name: 'May' },
+                        'JUN': { num: '06', name: 'June' },
+                        'JUL': { num: '07', name: 'July' },
+                        'AUG': { num: '08', name: 'August' },
+                        'SEP': { num: '09', name: 'September' },
+                        'OCT': { num: '10', name: 'October' },
+                        'NOV': { num: '11', name: 'November' },
+                        'DEC': { num: '12', name: 'December' }
+                    };
+                    
+                    if (monthMap[monthAbbr]) {
+                        reportMonth = monthMap[monthAbbr].num;
+                        reportMonthName = monthMap[monthAbbr].name;
+                    }
+                }
+            }
+            
+            console.log('Extracted period info:', { reportMonth, reportMonthName, reportYear });
+            
             // Filter out header/footer lines
             const dataLines = allLines.filter(line => {
                 const trimmed = line.trim();
@@ -690,7 +731,10 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     transactionCount: officeInfo.transactionCount,
                     transactionId: officeInfo.transactionId,
                     date: officeInfo.date,
-                    serviceType: officeInfo.serviceType
+                    serviceType: officeInfo.serviceType,
+                    month: reportMonth,
+                    monthName: reportMonthName,
+                    year: reportYear
                 };
             });
             
@@ -707,6 +751,9 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     if (!grouped[row.officeId]) {
                         grouped[row.officeId] = {
                             officeId: row.officeId,
+                            month: row.month,
+                            monthName: row.monthName,
+                            year: row.year,
                             totalTransactions: 0
                         };
                     }
@@ -757,6 +804,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 return `
                 <tr>
                     <td><span class="office-id">${row.officeId}</span></td>
+                    <td><span class="highlight">${row.monthName || row.month}</span></td>
+                    <td><span class="highlight">${row.year}</span></td>
                     <td><span class="total-count">${row.totalTransactions.toLocaleString()}</span></td>
                     <td>$${costPerTransaction}</td>
                     <td><span class="total-cost">$${totalCost.toFixed(4)}</span></td>
@@ -770,6 +819,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 <tr>
                     <td>${row.rowNumber}</td>
                     <td><span class="office-id">${row.officeId}</span></td>
+                    <td><span class="highlight">${row.monthName || row.month}</span></td>
+                    <td><span class="highlight">${row.year}</span></td>
                     <td><strong>${parseInt(row.transactionCount).toLocaleString()}</strong></td>
                     <td><span class="service-type">${row.serviceType}</span></td>
                     <td>${row.date}</td>
@@ -842,16 +893,19 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     const totalCost = (row.totalTransactions * costPerTransaction);
                     return {
                         'Office ID': row.officeId,
+                        'Month': row.monthName || row.month,
+                        'Year': row.year,
                         'Total Count': row.totalTransactions,
                         'Cost per Transaction': `${costPerTransaction}`,
                         'Total Cost': `${totalCost.toFixed(4)}`
                     };
                 });
 
-
                 const detailData = processedData.map(row => ({
                     'Row Number': row.rowNumber,
                     'Office ID': row.officeId,
+                    'Month': row.monthName || row.month,
+                    'Year': row.year,
                     'Transaction Count': parseInt(row.transactionCount),
                     'Service Type': row.serviceType,
                     'Date': row.date,
@@ -874,7 +928,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 alert('Error converting to Excel: ' + error.message);
             } finally {
                 isProcessing = false;
-                convertBtn.textContent = 'Convert to Excel';
+                convertBtn.textContent = 'Convert to Excel تحويل إلى Excel';
                 convertBtn.disabled = false;
             }
         }
@@ -926,7 +980,8 @@ NLB       SBTRWST           1ASIWEMI6MZ     TIPLY255021      LY 20240414       H
 NLB       SBTRWST           1ASIWEMI6MZ     TIPLY255021      LY 20240414       HXE Sign                      0000000192
 NLB       SBTRWST           1ASIWEMI6MZ     TIPLY26F821      LY 20240425       HXE Sign                      0000000223
 NLB       SBTRWST           1ASIWEMI6MZ     TIPLY26F821      LY 20240416       HXE Fare Quote Pricing & Disp 0000000408
-NLB       SBTRWST           1ASIWEMI6MZ     TIPLY26F821      LY 20240411       HXE Master Pricer             0000009083`;
+NLB       SBTRWST           1ASIWEMI6MZ     TIPLY26F821      LY 20240411       HXE Master Pricer             0000009083
+*NBRECS  = 00000017`;
             
             csvData = testData;
             processedData = processCsv(testData);
@@ -951,3 +1006,4 @@ NLB       SBTRWST           1ASIWEMI6MZ     TIPLY26F821      LY 20240411       H
     </script>
 </body>
 </html>
+            }
