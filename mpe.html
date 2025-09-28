@@ -534,6 +534,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                         <thead>
                             <tr>
                                 <th>Office ID</th>
+                                <th>Month</th>
+                                <th>Year</th>
                                 <th>Total Count</th>
                                 <th>Cost per Search</th>
                                 <th>Total Cost</th>
@@ -554,6 +556,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                             <tr>
                                 <th>Row</th>
                                 <th>Office ID</th>
+                                <th>Month</th>
+                                <th>Year</th>
                                 <th>Count</th>
                                 <th>Type</th>
                                 <th>Date</th>
@@ -646,6 +650,43 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             const allLines = content.split('\n');
             console.log('Total lines:', allLines.length);
             
+            // Extract month from period header
+            let reportMonth = '';
+            let reportMonthName = '';
+            let reportYear = '';
+            
+            const periodLine = allLines.find(line => line.includes('*PERIOD'));
+            if (periodLine) {
+                // Look for patterns like "01APR2024" or "APR2024"
+                const periodMatch = periodLine.match(/(\d{2})?([A-Z]{3})(\d{4})/);
+                if (periodMatch) {
+                    const monthAbbr = periodMatch[2];
+                    reportYear = periodMatch[3];
+                    
+                    const monthMap = {
+                        'JAN': { num: '01', name: '1' },
+                        'FEB': { num: '02', name: '2' },
+                        'MAR': { num: '03', name: '3' },
+                        'APR': { num: '04', name: '4' },
+                        'MAY': { num: '05', name: '5' },
+                        'JUN': { num: '06', name: '6' },
+                        'JUL': { num: '07', name: '7' },
+                        'AUG': { num: '08', name: '8' },
+                        'SEP': { num: '09', name: '9' },
+                        'OCT': { num: '10', name: '10' },
+                        'NOV': { num: '11', name: '11' },
+                        'DEC': { num: '12', name: '12' }
+                    };
+                    
+                    if (monthMap[monthAbbr]) {
+                        reportMonth = monthMap[monthAbbr].num;
+                        reportMonthName = monthMap[monthAbbr].name;
+                    }
+                }
+            }
+            
+            console.log('Extracted period info:', { reportMonth, reportMonthName, reportYear });
+            
             // Filter out header/footer lines
             const dataLines = allLines.filter(line => {
                 const trimmed = line.trim();
@@ -675,7 +716,10 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     officeId: officeInfo.officeId,
                     transactionCount: officeInfo.transactionCount,
                     transactionType: officeInfo.transactionType,
-                    date: officeInfo.date
+                    date: officeInfo.date,
+                    month: reportMonth,
+                    monthName: reportMonthName,
+                    year: reportYear
                 };
             });
             
@@ -692,6 +736,9 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     if (!grouped[row.officeId]) {
                         grouped[row.officeId] = {
                             officeId: row.officeId,
+                            month: row.month,
+                            monthName: row.monthName,
+                            year: row.year,
                             totalCount: 0
                         };
                     }
@@ -742,6 +789,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 return `
                 <tr>
                     <td><span class="office-id">${row.officeId}</span></td>
+                    <td><span class="highlight">${row.monthName || row.month}</span></td>
+                    <td><span class="highlight">${row.year}</span></td>
                     <td><span class="total-count">${row.totalCount}</span></td>
                     <td>$${costPerTransaction}</td>
                     <td><span class="total-cost">$${totalCost.toFixed(4)}</span></td>
@@ -755,6 +804,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 <tr>
                     <td>${row.rowNumber}</td>
                     <td><span class="office-id">${row.officeId}</span></td>
+                    <td><span class="highlight">${row.monthName || row.month}</span></td>
+                    <td><span class="highlight">${row.year}</span></td>
                     <td><strong>${row.transactionCount}</strong></td>
                     <td><span class="highlight">${row.transactionType}</span></td>
                     <td>${row.date}</td>
@@ -827,6 +878,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                     const totalCost = (row.totalCount * costPerTransaction);
                     return {
                         'Office ID': row.officeId,
+                        'Month': row.monthName || row.month,
+                        'Year': row.year,
                         'Total Count': row.totalCount,
                         'Cost per Search': `${costPerTransaction}`,
                         'Total Cost': `${totalCost.toFixed(4)}`
@@ -836,6 +889,8 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 const detailData = processedData.map(row => ({
                     'Row Number': row.rowNumber,
                     'Office ID': row.officeId,
+                    'Month': row.monthName || row.month,
+                    'Year': row.year,
                     'Search Count': row.transactionCount,
                     'Search Type': row.transactionType,
                     'Date': row.date,
@@ -857,7 +912,7 @@ box-shadow: 0 4px 6px rgba(0,0,0,0.1);
                 alert('Error converting to Excel: ' + error.message);
             } finally {
                 isProcessing = false;
-                convertBtn.textContent = 'Convert to Excel';
+                convertBtn.textContent = 'Convert to Excel تحويل إلى Excel';
                 convertBtn.disabled = false;
             }
         }
@@ -902,7 +957,8 @@ NLB       FRTMPC            TIPLY28B94521149320240430MPC          1         4
 NLB       FRTMPE            QZTLY21784521038420240430SPR         25         0
 NLB       FRTMPE            TIPLY26K34521637120240419SPR          2         0
 NLB       FRTMPE            QZTLY21784521038420240425SPR          1         0
-NLB       FRTMPE            TIPLY21984521062020240425SPR          8         0`;
+NLB       FRTMPE            TIPLY21984521062020240425SPR          8         0
+*NBRECS  = 00000010`;
             
             csvData = testData;
             processedData = processCsv(testData);
