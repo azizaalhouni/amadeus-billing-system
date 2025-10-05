@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Amadeus Report to Excel Converter</title>
+    <title>Simple Multi-File Amadeus Converter</title>
     <style>
         body {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 2rem;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: Arial, sans-serif;
             background: #f5f5f5;
         }
 
@@ -20,1003 +20,448 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            color: #333;
-            margin-bottom: 0.5rem;
+        .drop-zone {
+            border: 3px dashed #ccc;
+            border-radius: 10px;
+            padding: 50px;
             text-align: center;
+            margin: 20px 0;
+            background: #fafafa;
+            cursor: pointer;
+            min-height: 200px;
+            transition: all 0.3s ease;
         }
 
-        .description {
-            text-align: center;
-            color: #666;
-            margin-bottom: 2rem;
-        }
-
-        .upload-section {
-            margin: 2rem 0;
-            padding: 2rem;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            text-align: center;
-            background: #f9f9f9;
-            transition: border-color 0.3s ease;
-        }
-
-        .upload-section:hover {
+        .drop-zone.dragover {
             border-color: #007cba;
+            background: #e3f2fd;
+            transform: scale(1.02);
+        }
+
+        .drop-zone:hover {
+            border-color: #007cba;
+            background: #f0f8ff;
         }
 
         .file-input {
             display: none;
         }
 
-        .file-label {
-            display: inline-block;
-            padding: 12px 24px;
+        .upload-btn {
             background: #007cba;
             color: white;
-            border-radius: 6px;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
             cursor: pointer;
-            font-weight: 500;
-            transition: background-color 0.2s;
+            margin: 10px;
         }
 
-        .file-label:hover {
+        .upload-btn:hover {
             background: #005a87;
         }
 
-        .upload-hint {
-            margin-top: 1rem;
-            color: #666;
-            font-size: 0.9rem;
+        .file-list {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
         }
 
-        .cost-input-section {
-            margin: 2rem 0;
-            padding: 1.5rem;
-            background: #e3f2fd;
-            border: 2px solid #2196f3;
-            border-radius: 8px;
-            text-align: center;
+        .file-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .cost-input-section h3 {
-            color: #1976d2;
-            margin-top: 0;
-            margin-bottom: 1rem;
-        }
-
-        .cost-input {
-            padding: 10px 15px;
-            border: 2px solid #ddd;
-            border-radius: 6px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            text-align: center;
-            width: 150px;
-            margin: 0 10px;
-        }
-
-        .cost-input:focus {
-            outline: none;
-            border-color: #2196f3;
-            box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
-        }
-
-        .currency-symbol {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #1976d2;
-        }
-
-        .text-input-section {
-            margin-top: 2rem;
-            text-align: left;
-        }
-
-        .text-input-section summary {
-            cursor: pointer;
-            font-weight: 500;
-            margin-bottom: 1rem;
-        }
-
-        .text-area {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 0.9rem;
-            resize: vertical;
-            margin-bottom: 1rem;
-            box-sizing: border-box;
-        }
-
-        .process-btn, .test-btn, .convert-btn {
+        .remove-btn {
+            background: #dc3545;
+            color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            font-size: 1rem;
-            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 3px;
             cursor: pointer;
-            transition: background-color 0.2s;
-            margin: 0.5rem;
         }
 
         .process-btn {
-            background: #17a2b8;
-            color: white;
-        }
-
-        .process-btn:hover {
-            background: #138496;
-        }
-
-        .test-btn {
-            background: #6c757d;
-            color: white;
-        }
-
-        .test-btn:hover {
-            background: #5a6268;
-        }
-
-        .convert-btn {
             background: #28a745;
             color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
         }
 
-        .convert-btn:hover:not(:disabled) {
-            background: #218838;
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
         }
 
-        .convert-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-        }
-
-        .file-info {
-            margin-top: 1rem;
-            padding: 1rem;
+        .status.success {
             background: #d4edda;
+            color: #155724;
             border: 1px solid #c3e6cb;
-            border-radius: 6px;
-            text-align: left;
         }
 
-        .file-info pre {
-            background: #f8f9fa;
-            padding: 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            overflow-x: auto;
-            margin-top: 0.5rem;
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
 
-        .results-section {
-            margin-top: 2rem;
+        .status.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
         }
 
-        .summary {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: #f0f8ff;
-            border-radius: 6px;
-        }
-
-        .tag {
-            display: inline-block;
-            background: #e1f5fe;
-            padding: 4px 8px;
-            margin: 2px;
-            border-radius: 4px;
-            font-size: 0.9em;
-            border: 1px solid #b3e5fc;
-        }
-
-        .table-container {
-            overflow-x: auto;
-            margin: 1rem 0;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        .results {
+            margin-top: 20px;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
+            margin: 20px 0;
         }
 
         th, td {
-            padding: 12px;
+            border: 1px solid #ddd;
+            padding: 8px;
             text-align: left;
-            border-bottom: 1px solid #eee;
         }
 
         th {
-            background: #f5f5f5;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .office-id {
-            background: #e7f3ff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-            font-family: monospace;
-        }
-
-        .highlight {
-            background: #fff3cd;
-            padding: 2px 6px;
-            border-radius: 3px;
-            font-weight: 600;
-        }
-
-        .digit {
-            background: #d4edda;
-            padding: 4px 8px;
-            border-radius: 50%;
-            font-weight: bold;
-            display: inline-block;
-            min-width: 20px;
-            text-align: center;
-        }
-
-        .summary-section {
-            margin: 2rem 0;
-            padding: 1rem;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border: 2px solid #28a745;
-        }
-
-        .summary-section h3 {
-            color: #28a745;
-            margin-top: 0;
-        }
-
-        .detailed-section {
-            margin-top: 2rem;
-        }
-
-        .detailed-section summary {
-            cursor: pointer;
-            font-weight: 500;
-            color: #666;
-        }
-
-        .detailed-section summary h3 {
-            display: inline;
-            margin: 0;
-        }
-
-        .total-count {
-            background: #28a745;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .total-cost {
-            background: #ff6f00;
-            color: white;
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-
-        .transaction-count {
-            background: #17a2b8;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        @media (max-width: 768px) {
-            body {
-                padding: 1rem;
-            }
-            
-            table {
-                font-size: 0.9rem;
-            }
-            
-            th, td {
-                padding: 8px;
-            }
+            background: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <nav style="
-background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-padding: 1rem 0;
-margin: -2rem -2rem 2rem -2rem;
-box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-">
-<div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
-    <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
-       Amadeus Reports Processing Suite
-    </h2>
-    <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem; direction: rtl;">
-   مجموعة معالجة تقارير أماديوس
-</h2>
-    <div style="
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: center;
-        align-items: center;
-    ">
-        <a href="ATC&MPT.html" style="
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
-        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-           ATC & MPT Reports
-        </a>
-        <a href="wep.html" style="
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
-        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-           WEP Reports
-        </a>
-        <a href="pnr.html" style="
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
-        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-           PNR Reports
-        </a>
-        <a href="mpe.html" style="
-            background: rgba(255,255,255,0.2);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
-        " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
-           onmouseout="this.style.background='rgba(255,255,255,0.2)'">
-             MPE Reports
-        </a>
-        <a href="invoice.html" style="
-            background: rgba(255,255,255,0.4);
-            color: white;
-            text-decoration: none;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: 2px solid rgba(255,255,255,0.6);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        " onmouseover="this.style.background='rgba(255,255,255,0.5)'" 
-           onmouseout="this.style.background='rgba(255,255,255,0.4)'">
-             Consolidator الموحد
-        </a>
-    </div>
-    <p style="
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-        margin: 1rem 0 0 0;
-        font-size: 0.85rem;
-    ">
-        Process individual reports, then use the Consolidator to merge all Excel outputs
-    </p>
-    <p style="
-        color: rgba(255,255,255,0.9);
-        text-align: center;
-        margin: 1rem 0 0 0;
-        font-size: 0.85rem;
-        direction: rtl;
-    ">
-        قم بمعالجة التقارير الفردية، ثم استخدم الموحد لدمج جميع مخرجات Excel
-</p>
-</div>
-</nav>
     <div class="container">
-        <h1>Amadeus ATC & MPT Report to Excel Converter</h1>
-        <p class="description">Upload your Amadeus ticket changer report file to extract office numbers and convert to Excel</p>
-<p class="description" style="direction: rtl;">قم برفع ملف تقرير ATC | MPT  بـ Amadeus لاستخراج أرقام المكاتب وتحويلها إلى Excel</p>
-        <!-- Cost Input Section -->
-        <div class="cost-input-section">
-            <h3>💰 Cost Calculation Settings</h3>
-            <h3>💰 إعدادات حساب التكلفة</h3>
-            <label for="costPerTransaction">
-                <input 
-                    type="number" 
-                    id="costPerTransaction" 
-                    class="cost-input" 
-                    placeholder="0.00" 
-                    step="0.01"
-                    min="0"
-                    value="1.00"
-                />
-                <span style="margin-left: 10px; color: #666;">per transaction</span>
-                <span style="margin-right: 10px; color: #666;">لكل معاملة</span>
-
-            </label>
-            <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9rem;">
-                Enter the cost per transaction to calculate total costs in the Excel output
-            </p>
-            <p style="margin: 10px 0 0 0; color: #666; font-size: 0.9rem; direction: rtl;">
-    أدخل التكلفة لكل معاملة لحساب التكاليف الإجمالية في مخرجات Excel
-</p>
+        <h1>Simple Multi-File Amadeus ATC/MPT Converter</h1>
+        
+        <div class="drop-zone" id="dropZone">
+            <h3>Drag and Drop Files Here</h3>
+            <p>Or click the button below to browse files</p>
+            <p><strong>Supported:</strong> .txt, .csv, .dat, .raw files</p>
+            <p><strong>Maximum:</strong> 5 files at once</p>
         </div>
 
-        <div class="upload-section" id="uploadSection">
-            <input
-                type="file"
-                accept=".txt,.csv,.dat,text/plain"
-                id="fileInput"
-                class="file-input"
-            />
-            <label for="fileInput" class="file-label">
-                Choose Amadeus Report File اختر ملف تقرير
-            </label>
-            
-            <p class="upload-hint">
-                Or drag and drop your file here<br>
-                <small>Supported: .txt, .csv, .dat files</small>
-            </p>
-             <p class="upload-hint" style="direction: rtl;">
-    أو اسحب وأفلت ملفك هنا<br>
-</p>
-            <!-- Alternative text input method -->
-            <details class="text-input-section">
-                <summary>Alternative: Paste text directly</summary>
-                <textarea
-                    id="textArea"
-                    placeholder="Paste your Amadeus report data here..."
-                    rows="10"
-                    class="text-area"
-                ></textarea>
-                <button id="processBtn" class="process-btn">
-                    Process Pasted Data معالجة البيانات المُلصقة
-                </button>
-            </details>
-
-            <div id="fileInfo" class="file-info" style="display: none;">
-                <p>✅ Data loaded successfully!</p>
-                <p style="direction: rtl;">✅ تم تحميل البيانات بنجاح!</p>
-
-                <p id="contentLength"></p>
-                <details>
-                    <summary>View first 500 characters</summary>
-                    <pre id="contentPreview"></pre>
-                </details>
-            </div>
-            
-            <!-- Test button for debugging -->
-            <button id="testBtn" class="test-btn">
-                Test with Sample WEP Data   اختبار مع بيانات التجريبية
-            </button>
+        <input type="file" id="fileInput" class="file-input" multiple accept=".txt,.csv,.dat,.raw">
+        <button type="button" class="upload-btn" onclick="document.getElementById('fileInput').click()">
+            Browse Files
+        </button>
+        
+        <div id="status" class="status" style="display: none;"></div>
+        
+        <div id="fileList" class="file-list" style="display: none;">
+            <h3>Selected Files:</h3>
+            <div id="files"></div>
+            <button class="process-btn" onclick="processFiles()">Process All Files</button>
+            <button class="upload-btn" onclick="clearFiles()">Clear All</button>
         </div>
 
-        <div id="resultsSection" class="results-section" style="display: none;">
-            <h2>Processed Data Preview</h2>
-            <p id="recordCount"></p>
-            
-            <div class="summary">
-                <h3>Office Prefix Summary:</h3>
-                <div id="prefixSummary"></div>
-            </div>
-
-            <!-- Summary Table by Office ID -->
-            <div class="summary-section">
-                <h3>📊 Summary by Office ID (Grouped & Summed)</h3>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Office ID</th>
-                                <th>Month</th>
-                                <th>Year</th>
-                                <th>Total Count</th>
-                                <th>Cost per Transaction</th>
-                                <th>Total Cost</th>
-                            </tr>
-                        </thead>
-                        <tbody id="summaryTableBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Detailed Table -->
-            <details class="detailed-section">
-                <summary><h3>📋 Detailed View (Individual Records)</h3></summary>
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Row</th>
-                                <th>Office ID</th>
-                                <th>Prefix</th>
-                                <th>Month</th>
-                                <th>Year</th>
-                                <th>Last Digit</th>
-                                <th>Count</th>
-                                <th>Type</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                        </tbody>
-                    </table>
-                    <p id="tableNote" class="note"></p>
-                </div>
-            </details>
-
-            <button id="convertBtn" class="convert-btn">
-                Convert to Excel 
-                تحويل إلى
-            </button>
+        <div class="results" id="results" style="display: none;">
+            <h3>Processing Results</h3>
+            <div id="summary"></div>
+            <button class="process-btn" onclick="downloadExcel()">Download Excel</button>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
-        let csvData = '';
+        let selectedFiles = [];
         let processedData = [];
-        let isProcessing = false;
 
-        // DOM elements
+        // Get DOM elements
+        const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
-        const textArea = document.getElementById('textArea');
-        const processBtn = document.getElementById('processBtn');
-        const testBtn = document.getElementById('testBtn');
-        const convertBtn = document.getElementById('convertBtn');
-        const costPerTransactionInput = document.getElementById('costPerTransaction');
-        const uploadSection = document.getElementById('uploadSection');
-        const fileInfo = document.getElementById('fileInfo');
-        const resultsSection = document.getElementById('resultsSection');
-        const contentLength = document.getElementById('contentLength');
-        const contentPreview = document.getElementById('contentPreview');
-        const recordCount = document.getElementById('recordCount');
-        const prefixSummary = document.getElementById('prefixSummary');
-        const summaryTableBody = document.getElementById('summaryTableBody');
-        const tableBody = document.getElementById('tableBody');
-        const tableNote = document.getElementById('tableNote');
+        const status = document.getElementById('status');
+        const fileList = document.getElementById('fileList');
+        const filesDiv = document.getElementById('files');
+        const results = document.getElementById('results');
 
-        // Function to extract office number from the fixed-width line
-        function extractOfficeInfo(line) {
-            console.log('Processing line:', line);
-            
-            // Look for office codes like TIPLY25752, QZLLY21582 etc.
-            const officePattern = /([A-Z]{5}[A-Z0-9]{4})/;
-            const match = line.match(officePattern);
-            
-            if (match) {
-                const fullOfficeCode = match[1];
-                const officeId = fullOfficeCode.substring(0, 9); // First 9 characters
-                const prefix = officeId.substring(0, 5); // First 5 letters
-                const lastDigit = officeId.slice(-1); // Last digit
-                
-                console.log('Found office code:', {
-                    fullCode: fullOfficeCode,
-                    officeId: officeId,
-                    prefix: prefix,
-                    lastDigit: lastDigit
-                });
-                
-                return {
-                    fullCode: fullOfficeCode,
-                    officeId: officeId,
-                    prefix: prefix,
-                    lastDigit: lastDigit
-                };
+        // Drag and drop handlers
+        dropZone.addEventListener('dragover', handleDragOver);
+        dropZone.addEventListener('dragenter', handleDragEnter);
+        dropZone.addEventListener('dragleave', handleDragLeave);
+        dropZone.addEventListener('drop', handleDrop);
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        // File input handler
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!dropZone.contains(e.relatedTarget)) {
+                dropZone.classList.remove('dragover');
             }
-            
-            console.log('No office code found in line');
-            return {
-                fullCode: '',
-                officeId: '',
-                prefix: '',
-                lastDigit: ''
-            };
         }
 
-        // Process the uploaded data
-        function processCsv(content) {
-            console.log('Processing data, length:', content.length);
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('dragover');
             
-            const allLines = content.split('\n');
-            console.log('Total lines:', allLines.length);
+            const files = Array.from(e.dataTransfer.files);
+            console.log('Files dropped:', files.length);
+            console.log('File names:', files.map(f => f.name));
             
-            // Extract month from period header
-            let reportMonth = '';
-            let reportMonthName = '';
-            let reportYear = '';
+            addFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            console.log('Files selected:', files.length);
+            console.log('File names:', files.map(f => f.name));
             
-            const periodLine = allLines.find(line => line.includes('*PERIOD'));
-            if (periodLine) {
-                // Look for patterns like "01APR2024" or "APR2024"
-                const periodMatch = periodLine.match(/(\d{2})?([A-Z]{3})(\d{4})/);
-                if (periodMatch) {
-                    const monthAbbr = periodMatch[2];
-                    reportYear = periodMatch[3];
-                    
-                    const monthMap = {
-                        'JAN': { num: '01', name: '1' },
-                        'FEB': { num: '02', name: '2' },
-                        'MAR': { num: '03', name: '3' },
-                        'APR': { num: '04', name: '4' },
-                        'MAY': { num: '05', name: '5' },
-                        'JUN': { num: '06', name: '6' },
-                        'JUL': { num: '07', name: '7' },
-                        'AUG': { num: '08', name: '8' },
-                        'SEP': { num: '09', name: '9' },
-                        'OCT': { num: '10', name: '10' },
-                        'NOV': { num: '11', name: '11' },
-                        'DEC': { num: '12', name: '12' }
-                    };
-                    
-                    if (monthMap[monthAbbr]) {
-                        reportMonth = monthMap[monthAbbr].num;
-                        reportMonthName = monthMap[monthAbbr].name;
-                    }
-                }
-            }
-            
-            console.log('Extracted period info:', { reportMonth, reportMonthName, reportYear });
-            
-            const dataLines = allLines.filter(line => {
-                const trimmed = line.trim();
-                return trimmed && 
-                       !trimmed.startsWith('*') && 
-                       !trimmed.startsWith('COMPANY') &&
-                       !trimmed.startsWith('REPORT') &&
-                       !trimmed.startsWith('DESTIN') &&
-                       !trimmed.startsWith('PERIOD') &&
-                       !trimmed.startsWith('FREQCY') &&
-                       !trimmed.startsWith('NBRECS');
+            addFiles(files);
+        }
+
+        function addFiles(newFiles) {
+            // Filter supported files
+            const supportedExtensions = ['txt', 'csv', 'dat', 'raw'];
+            const validFiles = newFiles.filter(file => {
+                const ext = file.name.toLowerCase().split('.').pop();
+                return supportedExtensions.includes(ext);
             });
-            
-            console.log('Data lines after filtering:', dataLines.length);
-            
-            if (dataLines.length === 0) {
-                console.error('No data lines found after filtering');
-                return [];
-            }
-            
-            const processed = dataLines.map((line, index) => {
-                const officeInfo = extractOfficeInfo(line);
-                const dateMatch = line.match(/(\d{8})/);
-                const date = dateMatch?.[1] || '';
-                
-                return {
-                    rowNumber: index + 1,
-                    originalLine: line.trim(),
-                    officeId: officeInfo.officeId,
-                    officePrefix: officeInfo.prefix,
-                    lastDigit: officeInfo.lastDigit,
-                    transactionType: line.match(/(FRTRAT[MW])/)?.[1] || '',
-                    date: date,
-                    month: reportMonth,
-                    monthName: reportMonthName,
-                    year: reportYear,
-                    transactionCount: line.match(/(\d+)\s*$/)?.[1] || ''
-                };
-            });
-            
-            console.log('Processed', processed.length, 'records');
-            return processed;
-        }
 
-        // Group data by Office ID and sum counts
-        function groupByOfficeId(data) {
-            const grouped = {};
-            
-            data.forEach(row => {
-                if (row.officeId) {
-                    if (!grouped[row.officeId]) {
-                        grouped[row.officeId] = {
-                            officeId: row.officeId,
-                            prefix: row.officePrefix,
-                            lastDigit: row.lastDigit,
-                            month: row.month,
-                            monthName: row.monthName,
-                            year: row.year,
-                            totalCount: 0,
-                            transactionCount: 0
-                        };
-                    }
-                    
-                    // Sum the counts
-                    const count = parseInt(row.transactionCount) || 0;
-                    grouped[row.officeId].totalCount += count;
-                    grouped[row.officeId].transactionCount += 1;
-                }
-            });
-            
-            // Convert to array and sort by total count (highest first)
-            return Object.values(grouped).sort((a, b) => b.totalCount - a.totalCount);
-        }
-
-        // Get cost per transaction
-        function getCostPerTransaction() {
-            const cost = parseFloat(costPerTransactionInput.value) || 0;
-            return cost;
-        }
-
-        // Update display with processed data
-        function updateDisplay() {
-            if (processedData.length === 0) {
-                resultsSection.style.display = 'none';
+            if (validFiles.length === 0) {
+                showStatus('No supported files found. Please use .txt, .csv, .dat, or .raw files.', 'error');
                 return;
             }
 
-            resultsSection.style.display = 'block';
-            recordCount.textContent = `Found ${processedData.length} records`;
-
-            // Update prefix summary
-            const prefixCounts = processedData.reduce((acc, row) => {
-                if (row.officePrefix) {
-                    acc[row.officePrefix] = (acc[row.officePrefix] || 0) + 1;
+            // Add files to selection (avoid duplicates)
+            validFiles.forEach(file => {
+                const isDuplicate = selectedFiles.some(existing => 
+                    existing.name === file.name && existing.size === file.size
+                );
+                if (!isDuplicate && selectedFiles.length < 5) {
+                    selectedFiles.push(file);
                 }
-                return acc;
-            }, {});
+            });
 
-            prefixSummary.innerHTML = Object.entries(prefixCounts)
-                .map(([prefix, count]) => `<span class="tag">${prefix}: ${count}</span>`)
-                .join('');
-
-            // Update summary table (grouped by Office ID)
-            const groupedData = groupByOfficeId(processedData);
-            const costPerTransaction = getCostPerTransaction();
-            
-            summaryTableBody.innerHTML = groupedData.map(row => {
-                const totalCost = (row.totalCount * costPerTransaction);
-                return `
-                <tr>
-                    <td><span class="office-id">${row.officeId}</span></td>
-                    <td><span class="highlight">${row.monthName || row.month}</span></td>
-                    <td><span class="highlight">${row.year}</span></td>
-                    <td><span class="total-count">${row.totalCount}</span></td>
-                    <td>${costPerTransaction}</td>
-                    <td><span class="total-cost">${totalCost.toFixed(4)}</span></td>
-                </tr>
-                `;
-            }).join('');
-
-            // Update detailed table (individual records)
-            const rowsToShow = processedData.slice(0, 20);
-            tableBody.innerHTML = rowsToShow.map(row => `
-                <tr>
-                    <td>${row.rowNumber}</td>
-                    <td><span class="office-id">${row.officeId}</span></td>
-                    <td><span class="highlight">${row.officePrefix}</span></td>
-                    <td><span class="highlight">${row.monthName || row.month}</span></td>
-                    <td><span class="highlight">${row.year}</span></td>
-                    <td><span class="digit">${row.lastDigit}</span></td>
-                    <td><strong>${row.transactionCount}</strong></td>
-                    <td>${row.transactionType}</td>
-                    <td>${row.date}</td>
-                </tr>
-            `).join('');
-
-            if (processedData.length > 20) {
-                tableNote.textContent = `Showing first 20 rows of ${processedData.length} total records`;
+            if (selectedFiles.length >= 5) {
+                showStatus(`Maximum 5 files allowed. Currently have ${selectedFiles.length} files.`, 'info');
             } else {
-                tableNote.textContent = '';
+                showStatus(`${selectedFiles.length} files selected. You can add ${5 - selectedFiles.length} more.`, 'success');
             }
+
+            updateFileList();
         }
 
-        // Handle file upload
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                console.log('No file selected');
+        function updateFileList() {
+            if (selectedFiles.length === 0) {
+                fileList.style.display = 'none';
                 return;
             }
 
-            console.log('File selected:', {
-                name: file.name,
-                size: file.size,
-                type: file.type
-            });
+            fileList.style.display = 'block';
+            filesDiv.innerHTML = selectedFiles.map((file, index) => `
+                <div class="file-item">
+                    <span>${file.name} (${(file.size / 1024).toFixed(1)} KB)</span>
+                    <button class="remove-btn" onclick="removeFile(${index})">Remove</button>
+                </div>
+            `).join('');
+        }
 
-            if (file.size > 10 * 1024 * 1024) {
-                alert('File too large! Please select a file smaller than 10MB.');
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileList();
+            if (selectedFiles.length === 0) {
+                showStatus('All files removed.', 'info');
+            } else {
+                showStatus(`${selectedFiles.length} files remaining.`, 'info');
+            }
+        }
+
+        function clearFiles() {
+            selectedFiles = [];
+            updateFileList();
+            hideStatus();
+            results.style.display = 'none';
+        }
+
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+        }
+
+        function hideStatus() {
+            status.style.display = 'none';
+        }
+
+        async function processFiles() {
+            if (selectedFiles.length === 0) {
+                showStatus('No files to process.', 'error');
                 return;
             }
 
-            const reader = new FileReader();
-            
-            reader.onload = (e) => {
-                console.log('File loaded successfully');
-                csvData = e.target.result;
-                processedData = processCsv(csvData);
-                
-                // Update file info
-                fileInfo.style.display = 'block';
-                contentLength.textContent = `Content length: ${csvData.length} characters`;
-                contentPreview.textContent = csvData.substring(0, 500) + '...';
-                
-                updateDisplay();
-            };
-            
-            reader.onerror = (e) => {
-                console.error('Error reading file:', e);
-                alert('Error reading file');
-            };
-            
-            reader.readAsText(file, 'utf-8');
-        }
-
-        // Handle drag and drop
-        function handleDrop(event) {
-            event.preventDefault();
-            const files = event.dataTransfer.files;
-            if (files.length > 0) {
-                fileInput.files = files;
-                handleFileUpload({ target: { files: [files[0]] } });
-            }
-        }
-
-        function handleDragOver(event) {
-            event.preventDefault();
-        }
-
-        // Convert to Excel
-        async function convertToExcel() {
-            if (processedData.length === 0) {
-                alert('Please upload and process data first');
-                return;
-            }
-
-            isProcessing = true;
-            convertBtn.textContent = 'Converting...';
-            convertBtn.disabled = true;
+            showStatus(`Processing ${selectedFiles.length} files...`, 'info');
+            processedData = [];
 
             try {
-                // Create two sheets: Summary and Details
-                const groupedData = groupByOfficeId(processedData);
-                const costPerTransaction = getCostPerTransaction();
-                
-                // Summary sheet data with cost calculations
-                const summaryData = groupedData.map(row => {
-                    const totalCost = (row.totalCount * costPerTransaction);
-                    return {
-                        'Office ID': row.officeId,
-                        'Month': row.monthName || row.month,
-                        'Year': row.year,
-                        'Total Count': row.totalCount,
-                        'Cost per Transaction': `${costPerTransaction}`,
-                        'Total Cost': `${totalCost.toFixed(4)}`
-                    };
-                });
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    showStatus(`Processing file ${i + 1}/${selectedFiles.length}: ${file.name}`, 'info');
+                    
+                    const content = await readFileContent(file);
+                    const fileData = processFileContent(content, file.name);
+                    processedData = processedData.concat(fileData);
+                }
 
-                // Detailed sheet data
-                const detailData = processedData.map(row => ({
-                    'Row Number': row.rowNumber,
-                    'Office ID': row.officeId,
-                    'Office Prefix': row.officePrefix,
-                    'Month': row.monthName || row.month,
-                    'Year': row.year,
-                    'Last Digit': row.lastDigit,
-                    'Transaction Count': row.transactionCount,
-                    'Transaction Type': row.transactionType,
-                    'Date': row.date,
-                    'Original Line': row.originalLine
-                }));
+                showResults();
+                showStatus(`Successfully processed ${selectedFiles.length} files with ${processedData.length} total records.`, 'success');
 
-                const wb = XLSX.utils.book_new();
-                
-                // Add summary sheet
-                const summaryWs = XLSX.utils.json_to_sheet(summaryData);
-                XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary with Costs');
-                
-                // Add details sheet
-                const detailWs = XLSX.utils.json_to_sheet(detailData);
-                XLSX.utils.book_append_sheet(wb, detailWs, 'Detailed Records');
-                
-                XLSX.writeFile(wb, 'amadeus_atc_summary_with_costs.xlsx');
-                
-                console.log('Excel file with summary and cost calculations downloaded');
             } catch (error) {
-                console.error('Error converting to Excel:', error);
-                alert('Error converting to Excel: ' + error.message);
-            } finally {
-                isProcessing = false;
-                convertBtn.textContent = 'Convert to Excel تحويل إلى Excel';
-                convertBtn.disabled = false;
+                console.error('Processing error:', error);
+                showStatus(`Error processing files: ${error.message}`, 'error');
             }
         }
 
-        // Event listeners
-        fileInput.addEventListener('change', handleFileUpload);
-        uploadSection.addEventListener('drop', handleDrop);
-        uploadSection.addEventListener('dragover', handleDragOver);
+        function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = e => reject(new Error('Failed to read file'));
+                reader.readAsText(file);
+            });
+        }
 
-        // Update display when cost changes
-        costPerTransactionInput.addEventListener('input', updateDisplay);
+        function processFileContent(content, fileName) {
+            const lines = content.split('\n');
+            const dataLines = lines.filter(line => {
+                const trimmed = line.trim();
+                return trimmed && !trimmed.startsWith('*') && !trimmed.startsWith('NLB       FRTRAT') === false;
+            });
 
-        processBtn.addEventListener('click', () => {
-            const text = textArea.value.trim();
-            if (text) {
-                csvData = text;
-                processedData = processCsv(csvData);
+            return dataLines.map((line, index) => {
+                const officeMatch = line.match(/([A-Z]{5}[A-Z0-9]{4})/);
+                const countMatch = line.match(/(\d+)\s*$/);
                 
-                fileInfo.style.display = 'block';
-                contentLength.textContent = `Content length: ${csvData.length} characters`;
-                contentPreview.textContent = csvData.substring(0, 500) + '...';
-                
-                updateDisplay();
-            } else {
-                alert('Please paste some data first');
+                return {
+                    fileName: fileName,
+                    rowNumber: index + 1,
+                    officeId: officeMatch ? officeMatch[1] : '',
+                    transactionCount: countMatch ? parseInt(countMatch[1]) : 0,
+                    originalLine: line.trim()
+                };
+            }).filter(row => row.officeId); // Only keep rows with valid office IDs
+        }
+
+        function showResults() {
+            // Group by office ID
+            const grouped = {};
+            processedData.forEach(row => {
+                if (!grouped[row.officeId]) {
+                    grouped[row.officeId] = {
+                        officeId: row.officeId,
+                        totalCount: 0,
+                        files: new Set()
+                    };
+                }
+                grouped[row.officeId].totalCount += row.transactionCount;
+                grouped[row.officeId].files.add(row.fileName);
+            });
+
+            const summaryData = Object.values(grouped).sort((a, b) => b.totalCount - a.totalCount);
+
+            document.getElementById('summary').innerHTML = `
+                <h4>Summary by Office ID:</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Office ID</th>
+                            <th>Total Count</th>
+                            <th>Files</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${summaryData.map(row => `
+                            <tr>
+                                <td>${row.officeId}</td>
+                                <td>${row.totalCount}</td>
+                                <td>${Array.from(row.files).join(', ')}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+
+            results.style.display = 'block';
+        }
+
+        function downloadExcel() {
+            if (processedData.length === 0) {
+                showStatus('No data to export.', 'error');
+                return;
             }
-        });
 
-        testBtn.addEventListener('click', () => {
-            console.log('Test button clicked');
-            const testData = `*COMPANY = AMADEUS IT GROUP SA
-*REPORT  = BIDAATCCBI01       AMADEUS TICKET CHANGER MAIN ABI V01
-*DESTIN  = NLI Amadeus Libya,Technical Services JV
-*PERIOD  = 01APR2024 TO 30APR2024
-*FREQCY  = M
-NLB       FRTRATM           B2  LY       45212510TIPLY25752120240403         1
-NLB       FRTRATM           B2  LY       45211073TIPLY22932120240411         4
-NLB       FRTRATM           B2  LY       45216371TIPLY26K32120240424         4
-NLB       FRTRATM           B2  LY               TIPLY25T92120240402         1
-NLB       FRTRATM           B2  LY       45210620TIPLY21982120240416         2
-NLB       FRTRATM           B2  LY       45212510TIPLY25752120240404         3
-*NBRECS  = 00000006`;
+            const wb = XLSX.utils.book_new();
             
-            csvData = testData;
-            processedData = processCsv(testData);
-            
-            fileInfo.style.display = 'block';
-            contentLength.textContent = `Content length: ${csvData.length} characters`;
-            contentPreview.textContent = csvData.substring(0, 500) + '...';
-            
-            updateDisplay();
-            console.log('Test data processed:', processedData);
-        });
+            // Summary sheet
+            const grouped = {};
+            processedData.forEach(row => {
+                if (!grouped[row.officeId]) {
+                    grouped[row.officeId] = {
+                        'Office ID': row.officeId,
+                        'Total Count': 0,
+                        'Files': new Set()
+                    };
+                }
+                grouped[row.officeId]['Total Count'] += row.transactionCount;
+                grouped[row.officeId]['Files'].add(row.fileName);
+            });
 
-        convertBtn.addEventListener('click', convertToExcel);
+            const summaryData = Object.values(grouped).map(row => ({
+                'Office ID': row['Office ID'],
+                'Total Count': row['Total Count'],
+                'Files': Array.from(row['Files']).join(', ')
+            }));
 
-        // Also process text area input in real time
-        textArea.addEventListener('input', () => {
-            const text = textArea.value.trim();
-            if (text) {
-                csvData = text;
-                processedData = processCsv(csvData);
-                updateDisplay();
-            }
-        });
+            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+
+            // Detail sheet
+            const detailData = processedData.map(row => ({
+                'File Name': row.fileName,
+                'Office ID': row.officeId,
+                'Transaction Count': row.transactionCount,
+                'Original Line': row.originalLine
+            }));
+
+            const detailWs = XLSX.utils.json_to_sheet(detailData);
+            XLSX.utils.book_append_sheet(wb, detailWs, 'Details');
+
+            const fileName = `amadeus_report_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            showStatus('Excel file downloaded successfully!', 'success');
+        }
+
+        console.log('Simple Multi-File Amadeus Converter loaded successfully!');
     </script>
 </body>
 </html>
