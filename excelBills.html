@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bills Invoice Generator</title>
+    <style>
+        body {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            direction: rtl;
+        }
+
+        .container {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .upload-section {
+            margin: 2rem 0;
+            padding: 2rem;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+
+        .file-input {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+
+        .file-list {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .file-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem;
+            margin: 0.3rem 0;
+            background: #f8f9fa;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #495057;
+            flex-grow: 1;
+        }
+
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+
+        .remove-btn:hover {
+            background: #c82333;
+        }
+
+        .add-more-btn {
+            background: #17a2b8;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .process-btn, .download-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0.5rem;
+        }
+
+        .process-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .download-btn {
+            background: #007cba;
+        }
+
+        .results-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            display: none;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: right;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background: #f5f5f5;
+            font-weight: 600;
+        }
+
+        .progress {
+            margin: 1rem 0;
+            padding: 1rem;
+            background: #e7f3ff;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .file-counter {
+            background: #28a745;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .month-badge {
+            background: #ffc107;
+            color: #333;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            margin: 0 2px;
+        }
+    </style>
+</head>
+<body>
+    <nav style="
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 1rem 0;
+        margin: -2rem -2rem 2rem -2rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    ">
+        <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+            <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem;">
+               Amadeus Reports Processing Suite
+            </h2>
+            <h2 style="color: white; margin: 0 0 1rem 0; text-align: center; font-size: 1.5rem; direction: rtl;">
+           مجموعة معالجة تقارير أماديوس
+        </h2>
+            <div style="
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.5rem;
+                justify-content: center;
+                align-items: center;
+            ">
+                <a href="ATC&MPT.html" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                   ATC & MPT Reports
+                </a>
+                <a href="wep.html" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                   WEP Reports
+                </a>
+                <a href="pnr.html" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                   PNR Reports
+                </a>
+                <a href="mpe.html" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                     MPE Reports
+                </a>
+                <a href="invoice.html" style="
+                    background: rgba(255,255,255,0.2);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    font-weight: 500;
+                    transition: all 0.3s ease;
+                    border: 1px solid rgba(255,255,255,0.3);
+                " onmouseover="this.style.background='rgba(255,255,255,0.3)'" 
+                   onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                     Consolidator الموحد
+                </a>
+               <a href="excelBills.html" style="
+                    background: rgba(255,255,255,0.4);
+                    color: white;
+                    text-decoration: none;
+                    padding: 8px 16px;
+                    border-radius: 25px;
+                    font-size: 0.9rem;
+                    font-weight: 600;
+                    transition: all 0.3s ease;
+                    border: 2px solid rgba(255,255,255,0.6);
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    
+                ">
+                     Invoice Generator مولد الفواتير
+                </a>
+            </div>
+            <p style="
+                color: rgba(255,255,255,0.9);
+                text-align: center;
+                margin: 1rem 0 0 0;
+                font-size: 0.85rem;
+            ">
+                Generate individual invoices from monthly bills files with automatic month extraction
+            </p>
+            <p style="
+                color: rgba(255,255,255,0.9);
+                text-align: center;
+                margin: 1rem 0 0 0;
+                font-size: 0.85rem;
+                direction: rtl;
+            ">
+                إنشاء فواتير فردية من ملفات bills مع استخراج الأشهر تلقائياً
+        </p>
+        </div>
+    </nav>
+
+    <div class="container">
+        <h1>مولد فواتير  Invoice Generator</h1>
+        <p style="text-align: center; color: #666;">يدعم الآن ملفات متعددة مع استخراج الأشهر تلقائياً</p>
+
+        <div class="upload-section">
+            <h3>
+                تحميل ملفات Monthly_bills.xlsx
+                <span class="file-counter" id="fileCounter">0</span>
+            </h3>
+            <input type="file" id="amoshFile" class="file-input" accept=".xlsx,.xls" multiple />
+            <button class="add-more-btn" onclick="document.getElementById('amoshFile').click()">
+                إضافة المزيد من الملفات
+            </button>
+            <div class="file-list" id="fileList"></div>
+            <br>
+            <button id="processBtn" class="process-btn" disabled>
+                معالجة الملفات وإنشاء الفواتير
+            </button>
+        </div>
+
+        <div class="progress" id="progressDiv">
+            <p id="progressText">جاري المعالجة...</p>
+        </div>
+
+        <div id="resultsSection" class="results-section">
+            <h3>النتائج - Results</h3>
+            <div id="summaryContent"></div>
+            <button id="downloadBtn" class="download-btn">
+                تحميل ملف الفواتير - Download Invoices
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let uploadedFiles = [];
+        let processedData = {};
+        let invoiceWorkbook = null;
+
+        const amoshFile = document.getElementById('amoshFile');
+        const processBtn = document.getElementById('processBtn');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const progressDiv = document.getElementById('progressDiv');
+        const progressText = document.getElementById('progressText');
+        const resultsSection = document.getElementById('resultsSection');
+        const summaryContent = document.getElementById('summaryContent');
+        const fileList = document.getElementById('fileList');
+        const fileCounter = document.getElementById('fileCounter');
+
+        amoshFile.addEventListener('change', (e) => {
+            handleFileUpload(e.target.files);
+            e.target.value = ''; // Clear so same file can be added again
+        });
+
+        function handleFileUpload(files) {
+            Array.from(files).forEach(file => {
+                // Check for duplicates
+                const isDuplicate = uploadedFiles.some(f => 
+                    f.name === file.name && f.size === file.size
+                );
+                if (!isDuplicate) {
+                    uploadedFiles.push(file);
+                }
+            });
+            updateFileDisplay();
+        }
+
+        function updateFileDisplay() {
+            fileCounter.textContent = uploadedFiles.length;
+            processBtn.disabled = uploadedFiles.length === 0;
+
+            if (uploadedFiles.length === 0) {
+                fileList.style.display = 'none';
+                return;
+            }
+
+            fileList.style.display = 'block';
+            fileList.innerHTML = uploadedFiles.map((file, index) => `
+                <div class="file-item">
+                    <span class="file-name">${file.name}</span>
+                    <button class="remove-btn" onclick="removeFile(${index})">حذف</button>
+                </div>
+            `).join('');
+        }
+
+        function removeFile(index) {
+            uploadedFiles.splice(index, 1);
+            updateFileDisplay();
+        }
+
+        processBtn.addEventListener('click', async () => {
+            if (uploadedFiles.length === 0) return;
+
+            progressDiv.style.display = 'block';
+            processBtn.disabled = true;
+
+            try {
+                await processAllAmoshFiles();
+                generateInvoices();
+                displayResults();
+                resultsSection.style.display = 'block';
+            } catch (error) {
+                alert('خطأ: ' + error.message);
+                console.error(error);
+            } finally {
+                progressDiv.style.display = 'none';
+                processBtn.disabled = false;
+            }
+        });
+
+        async function processAllAmoshFiles() {
+            processedData = {};
+
+            for (let i = 0; i < uploadedFiles.length; i++) {
+                const file = uploadedFiles[i];
+                progressText.textContent = `قراءة ملف ${i + 1}/${uploadedFiles.length}: ${file.name}`;
+                await processAmoshFile(file);
+            }
+
+            console.log('Processed offices:', Object.keys(processedData).length);
+        }
+
+        async function processAmoshFile(file) {
+            const data = await readFile(file);
+            const workbook = XLSX.read(data);
+
+            const serviceSheets = {
+                'ATC': 'استخدام خاصية تغيير التذاكر ATC',
+                'MPE ': 'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPE',
+                'MPE': 'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPE',
+                'MPT': 'استخدام خاصية عرض أفضل الأسعار لرحلة معينة MPT',
+                'PNR': 'استخدام خاصية استدعاء الحجوزات PNR',
+                'Web Trax': 'استخدام الخدمات الإلكترونية WEP',
+                ' AUTTP ': 'Amadeus Unused e-Document',
+                'AUTTP': 'Amadeus Unused e-Document',
+                'AOS Std Implementation Fee': 'AOS Std Implementation Fee'
+            };
+
+            for (let [sheetName, serviceDescription] of Object.entries(serviceSheets)) {
+                if (workbook.Sheets[sheetName]) {
+                    progressText.textContent = `معالجة ${sheetName} من ${file.name}...`;
+                    processSheet(workbook.Sheets[sheetName], serviceDescription, sheetName);
+                }
+            }
+        }
+
+        function extractMonthFromHeader(headerText) {
+            if (!headerText) return '';
+            
+            const monthMap = {
+                'يناير': '01', 'january': '01', 'jan': '01',
+                'فبراير': '02', 'february': '02', 'feb': '02',
+                'مارس': '03', 'march': '03', 'mar': '03',
+                'أبريل': '04', 'إبريل': '04', 'april': '04', 'apr': '04',
+                'مايو': '05', 'ماي': '05', 'may': '05',
+                'يونيو': '06', 'يونيه': '06', 'june': '06', 'jun': '06',
+                'يوليو': '07', 'يوليه': '07', 'july': '07', 'jul': '07',
+                'أغسطس': '08', 'اغسطس': '08', 'august': '08', 'aug': '08',
+                'سبتمبر': '09', 'september': '09', 'sep': '09',
+                'أكتوبر': '10', 'اكتوبر': '10', 'october': '10', 'oct': '10',
+                'نوفمبر': '11', 'november': '11', 'nov': '11',
+                'ديسمبر': '12', 'december': '12', 'dec': '12'
+            };
+
+            const lowerText = headerText.toLowerCase();
+            
+            for (let [monthName, monthNum] of Object.entries(monthMap)) {
+                if (lowerText.includes(monthName.toLowerCase())) {
+                    return monthNum;
+                }
+            }
+            
+            return '';
+        }
+
+        function processSheet(sheet, serviceDescription, sheetName) {
+            const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+            
+            // Extract month from first row header
+            let monthNumber = '';
+            if (data.length > 0 && data[0][0]) {
+                monthNumber = extractMonthFromHeader(data[0][0].toString());
+            }
+
+            // Find header row (contains "Office ID")
+            let headerRowIndex = -1;
+            for (let i = 0; i < data.length; i++) {
+                if (data[i].includes('Office ID')) {
+                    headerRowIndex = i;
+                    break;
+                }
+            }
+
+            if (headerRowIndex === -1) return;
+
+            const headers = data[headerRowIndex];
+            const officeIdIndex = headers.indexOf('Office ID');
+            const companyNameIndex = headers.indexOf('Company Name');
+            const arabicNameIndex = headers.indexOf('اسم الشركة');
+            const qtyIndex = headers.indexOf('الكمية') !== -1 ? headers.indexOf('الكمية') : headers.indexOf('Qty');
+            const priceIndex = headers.indexOf('مجموع البيع') !== -1 ? headers.indexOf('مجموع البيع') : headers.indexOf('Sales Price');
+
+            // Process data rows
+            for (let i = headerRowIndex + 1; i < data.length; i++) {
+                const row = data[i];
+                const officeId = row[officeIdIndex];
+                const companyName = row[companyNameIndex];
+                const arabicName = row[arabicNameIndex];
+                const quantity = parseFloat(row[qtyIndex]) || 0;
+                const price = parseFloat(row[priceIndex]) || 0;
+
+                if (!officeId || (!quantity && !price)) continue;
+
+                if (!processedData[officeId]) {
+                    processedData[officeId] = {
+                        officeId: officeId,
+                        companyName: companyName || 'غير معروف',
+                        arabicName: arabicName || 'غير معروف',
+                        services: []
+                    };
+                }
+
+                if (quantity > 0 || price > 0) {
+                    // Add month to service description
+                    let descriptionWithMonth = serviceDescription;
+                    if (monthNumber) {
+                        descriptionWithMonth += ` لشهر ${monthNumber}`;
+                    }
+
+                    processedData[officeId].services.push({
+                        description: descriptionWithMonth,
+                        quantity: quantity,
+                        price: price,
+                        sheet: sheetName,
+                        month: monthNumber
+                    });
+                }
+            }
+        }
+
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => resolve(e.target.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function numberToArabic(num) {
+            const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+            const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+            const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+            const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+            function convertInteger(n) {
+                if (n === 0) return 'صفر';
+                let result = '';
+                let needsWaw = false;
+
+                if (n >= 1000) {
+                    const thousands = Math.floor(n / 1000);
+                    if (thousands === 1) result += 'ألف';
+                    else if (thousands === 2) result += 'ألفان';
+                    else result += ones[thousands] + ' آلاف';
+                    needsWaw = true;
+                    n %= 1000;
+                }
+
+                if (n >= 100) {
+                    if (needsWaw && n > 0) result += ' و';
+                    result += hundreds[Math.floor(n / 100)];
+                    needsWaw = true;
+                    n %= 100;
+                }
+
+                if (n >= 20) {
+                    if (needsWaw) result += ' و';
+                    const onesDigit = n % 10;
+                    const tensDigit = Math.floor(n / 10);
+                    if (onesDigit !== 0) result += ones[onesDigit] + ' و' + tens[tensDigit];
+                    else result += tens[tensDigit];
+                } else if (n >= 10) {
+                    if (needsWaw) result += ' و';
+                    result += teens[n - 10];
+                } else if (n > 0) {
+                    if (needsWaw) result += ' و';
+                    result += ones[n];
+                }
+
+                return result.trim();
+            }
+
+            // Split into integer and decimal parts
+            const integerPart = Math.floor(num);
+            const decimalPart = Math.round((num - integerPart) * 1000);
+
+            let result = 'فقط ';
+            result += convertInteger(integerPart) + ' دينار';
+
+            if (decimalPart > 0) {
+                result += ' و' + decimalPart + ' درهم';
+            }
+
+            result += ' لاغير';
+            return result;
+        }
+
+        function getCurrentDateArabic() {
+            const date = new Date();
+            const months = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+        }
+
+        function generateInvoices() {
+            progressText.textContent = 'إنشاء الفواتير...';
+            
+            invoiceWorkbook = XLSX.utils.book_new();
+            const offices = Object.values(processedData).sort((a, b) => a.officeId.localeCompare(b.officeId));
+
+            const summaryData = [
+                ['', 'ملخص فواتير جميع المكاتب - All Offices Summary', '', '', '', '', ''],
+                ['', '', '', '', '', '', ''],
+                ['رمز المكتب', 'اسم المكتب', 'الاسم العربي', 'عدد الخدمات', 'الأشهر', 'المبلغ الإجمالي', 'الحالة'],
+                ['', '', '', '', '', '', '']
+            ];
+
+            offices.forEach(office => {
+                const currentDate = getCurrentDateArabic();
+                const currentYear = new Date().getFullYear();
+                
+                let subtotal = 0;
+                let rowCounter = 1;
+                const serviceRows = [];
+                const months = new Set();
+
+                // Group services by base description (without month)
+                const groupedServices = {};
+                office.services.forEach(service => {
+                    // Extract base service name without month
+                    const baseDescription = service.description.replace(/\s*لشهر\s*\d+\s*$/, '');
+                    
+                    if (!groupedServices[baseDescription]) {
+                        groupedServices[baseDescription] = {
+                            quantity: 0,
+                            price: 0,
+                            months: new Set()
+                        };
+                    }
+                    
+                    groupedServices[baseDescription].quantity += service.quantity;
+                    groupedServices[baseDescription].price += service.price;
+                    if (service.month) {
+                        groupedServices[baseDescription].months.add(service.month);
+                        months.add(service.month);
+                    }
+                });
+
+                // Create service rows with combined months
+                Object.keys(groupedServices).sort().forEach(baseDescription => {
+                    const group = groupedServices[baseDescription];
+                    const monthsArray = Array.from(group.months).sort();
+                    
+                    let finalDescription = baseDescription;
+                    if (monthsArray.length > 0) {
+                        finalDescription += ` لشهر ${monthsArray.join(',')}`;
+                    }
+                    
+                    serviceRows.push([
+                        rowCounter++,
+                        finalDescription,
+                        group.quantity,
+                        group.price.toFixed(3)
+                    ]);
+                    subtotal += group.price;
+                });
+
+                const totalInWords = numberToArabic(subtotal);
+
+                const invoiceData = [
+                    ['', '', '', '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', '', 'شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', `التاريخ: ${currentDate}`, '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', '', '', `الاخوة / ${office.arabicName}`, ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', `رقم المكتب: ${office.officeId}`, '', 'بعد التحية ،،،', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', `فاتورة رقم: _____ / ${currentYear}`, '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', '', '', 'نأمل منكم سداد قيمة الفاتورة المبينة أدناه :', ''],
+                    ['', '', '', '', '', ''],
+                    ['', '', '', '', '', ''],
+                    ['', 'القيمة (د.ل)', 'الكمية', 'البيان', 'ر.ت', ''],
+                    ['', '', '', '', '', '']
+                ];
+
+                serviceRows.forEach(row => {
+                    invoiceData.push([
+                        '', row[3], row[2], row[1], row[0], ''
+                    ]);
+                });
+
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', subtotal.toFixed(3), '', 'الاجمالي', '', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', '', '', `المبلغ بالحروف: ${totalInWords}`, '', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', '', '', '', 'طريقة السداد:', '']);
+                invoiceData.push(['', '', '', '', 'يكون السداد نقداً أو بصك مصدق بخزينة الشركة', '']);
+                invoiceData.push(['', '', '', '', 'بإسم شركة أماديوس ليبيا للخدمات التقنية المشتركة', '']);
+                invoiceData.push(['', '', '', '', 'أو بإيداع المبلغ بحساب الشركة رقم 0900003088', '']);
+                invoiceData.push(['', '', '', '', 'لدى المصرف الليبي الخارجي.', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', '', '', 'والســـــــــــــــــــــلام عليكـــــــــــــــــــــم', '', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+                invoiceData.push(['', '', '', '.........................', '', '']);
+                invoiceData.push(['', '', '', 'مدير الشؤون الادارية و المالية', '', '']);
+
+                const invoiceSheet = XLSX.utils.aoa_to_sheet(invoiceData);
+                invoiceSheet['!cols'] = [
+                    { width: 20 }, { width: 20 }, { width: 20 }, 
+                    { width: 80 }, { width: 35 }, { width: 20 }
+                ];
+
+                const cleanOfficeId = office.officeId.replace(/[^\w\s]/gi, '').substring(0, 31);
+                XLSX.utils.book_append_sheet(invoiceWorkbook, invoiceSheet, `فاتورة_${cleanOfficeId}`);
+
+                const monthsText = Array.from(months).sort().join(', ') || 'غير محدد';
+                summaryData.push([
+                    office.officeId,
+                    office.companyName,
+                    office.arabicName,
+                    office.services.length,
+                    monthsText,
+                    subtotal.toFixed(3),
+                    'تم إنشاء الفاتورة'
+                ]);
+            });
+
+            const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);
+            summarySheet['!cols'] = [
+                { width: 15 }, { width: 30 }, { width: 30 }, 
+                { width: 15 }, { width: 20 }, { width: 20 }, { width: 30 }
+            ];
+            XLSX.utils.book_append_sheet(invoiceWorkbook, summarySheet, 'ملخص_الفواتير');
+
+            const sheetNames = invoiceWorkbook.SheetNames;
+            const summaryIndex = sheetNames.indexOf('ملخص_الفواتير');
+            if (summaryIndex > 0) {
+                sheetNames.splice(summaryIndex, 1);
+                sheetNames.unshift('ملخص_الفواتير');
+            }
+        }
+
+        function displayResults() {
+            const offices = Object.values(processedData);
+            let totalAmount = 0;
+            
+            let html = `<div class="summary-card">`;
+            html += `<h4>تم إنشاء ${offices.length} فاتورة بنجاح من ${uploadedFiles.length} ملف</h4>`;
+            html += `<table><thead><tr><th>رمز المكتب</th><th>اسم الشركة</th><th>الاسم العربي</th><th>عدد الخدمات</th><th>الأشهر</th><th>المبلغ الإجمالي</th></tr></thead><tbody>`;
+            
+            offices.forEach(office => {
+                // Group services to get unique count and total
+                const groupedServices = {};
+                office.services.forEach(service => {
+                    const baseDescription = service.description.replace(/\s*لشهر\s*\d+\s*$/, '');
+                    if (!groupedServices[baseDescription]) {
+                        groupedServices[baseDescription] = { price: 0, months: new Set() };
+                    }
+                    groupedServices[baseDescription].price += service.price;
+                    if (service.month) groupedServices[baseDescription].months.add(service.month);
+                });
+                
+                const total = Object.values(groupedServices).reduce((sum, g) => sum + g.price, 0);
+                totalAmount += total;
+                
+                const allMonths = new Set();
+                Object.values(groupedServices).forEach(g => {
+                    g.months.forEach(m => allMonths.add(m));
+                });
+                
+                const monthsDisplay = Array.from(allMonths).sort().map(m => `<span class="month-badge">${m}</span>`).join(' ') || 'غير محدد';
+                
+                html += `<tr>
+                    <td>${office.officeId}</td>
+                    <td>${office.companyName}</td>
+                    <td>${office.arabicName}</td>
+                    <td>${Object.keys(groupedServices).length}</td>
+                    <td>${monthsDisplay}</td>
+                    <td>${total.toFixed(3)} د.ل</td>
+                </tr>`;
+            });
+            
+            html += `</tbody></table>`;
+            html += `<h4>المبلغ الإجمالي الكلي: ${totalAmount.toFixed(3)} د.ل</h4>`;
+            html += `</div>`;
+            
+            summaryContent.innerHTML = html;
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            if (!invoiceWorkbook) {
+                alert('لا توجد فواتير للتحميل');
+                return;
+            }
+            XLSX.writeFile(invoiceWorkbook, 'فواتير_أماديوس.xlsx');
+        });
+    </script>
+</body>
+</html>
