@@ -686,11 +686,13 @@
                     ['', '', '', '', '', ''],
                     ['', '', '', 'شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', ''],
                     ['', '', '', '', '', ''],
-                    ['', '', `التاريخ: ${currentDate}`, '', '', ''],
-                    ['', '', '', '', '', ''],
                     
-                    // Store index for merging
                 ];
+
+                const dateRowIndex = invoiceData.length;
+                invoiceData.push(['', `التاريخ: ${currentDate}`, '', '', '', '']);
+                invoiceData.push(['', '', '', '', '', '']);
+
                 
                 const brothersRowIndex = invoiceData.length;
                 invoiceData.push(['', '', '', `الاخوة / ${office.arabicName}`, '', '']);
@@ -698,11 +700,13 @@
                 invoiceData.push(['', '', '', '', '', '']);
                 
                 const greetingRowIndex = invoiceData.length;
-                invoiceData.push(['', '', `رقم المكتب: ${office.officeId}`, 'بعد التحية ،،،', '', '']);
+                invoiceData.push(['', `رقم المكتب: ${office.officeId}`, '', 'بعد التحية ،،،', '', '']);
                 
                 invoiceData.push(['', '', '', '', '', '']);
                 invoiceData.push(['', '', '', '', '', '']);
-                invoiceData.push(['', '', `فاتورة رقم: _____ / ${currentYear}`, '', '', '']);
+
+                const billNumberRowIndex = invoiceData.length;
+                invoiceData.push(['',  `فاتورة رقم: _____ / ${currentYear}`,'', '', '', '']);
                 invoiceData.push(['', '', '', '', '', '']);
                 
                 const requestRowIndex = invoiceData.length;
@@ -749,10 +753,8 @@
                 invoiceData.push(['', '', '', '', '', '']);
                 invoiceData.push(['', '', '', 'والســـــــــــــــــــــلام عليكـــــــــــــــــــــم', '', '']);
                 invoiceData.push(['', '', '', '', '', '']);
-                invoiceData.push(['', '', '', '.........................', '', '']);
-                invoiceData.push(['', 'مدير الشؤون الادارية و المالية', '', '', '', '']);
-                invoiceData.push(['', '', '', 'ملف الصادر الفواتير', '', '']);
-
+                invoiceData.push(['', '', '.........................', '', '', '']);
+                invoiceData.push(['', '', 'مدير الشؤون الادارية و المالية', '', '', '']);
 
                 const invoiceSheet = XLSX.utils.aoa_to_sheet(invoiceData);
                 invoiceSheet['!cols'] = [
@@ -763,17 +765,34 @@
                 // Merge cells
                 if (!invoiceSheet['!merges']) invoiceSheet['!merges'] = [];
                 
+                    //Date Merge
+                invoiceSheet['!merges'].push({
+                    s: { r: dateRowIndex, c: 2},
+                    e: {r: dateRowIndex, c: 1}
+                });
+
+                //Bill Number merge
+                invoiceSheet['!merges'].push({
+                    s:{ r: billNumberRowIndex, c:2},
+                    e: {r:billNumberRowIndex, c :1}
+                });
                 // Merge "الاخوة / ..." (columns D-E, which are index 3-4)
                 invoiceSheet['!merges'].push({
                     s: { r: brothersRowIndex, c: 3 },
                     e: { r: brothersRowIndex, c: 4 }
                 });
                 
-                // Merge "بعد التحية" (columns D-E, which are index 3-4)
-                invoiceSheet['!merges'].push({
-                    s: { r: greetingRowIndex, c: 3 },
-                    e: { r: greetingRowIndex, c: 4 }
-                });
+               // Merge office ID (columns B-C, which are index 1-2)
+invoiceSheet['!merges'].push({
+    s: { r: greetingRowIndex, c: 1 },
+    e: { r: greetingRowIndex, c: 2 }
+});
+
+// Merge greeting (columns D-E, which are index 3-4)
+invoiceSheet['!merges'].push({
+    s: { r: greetingRowIndex, c: 3 },
+    e: { r: greetingRowIndex, c: 4 }
+});
                 
                 // Merge "نأمل منكم سداد..." (columns D-E, which are index 3-4)
                 invoiceSheet['!merges'].push({
