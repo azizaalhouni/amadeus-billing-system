@@ -551,6 +551,12 @@
             });
         }
 
+        function formatNumber(num) {
+            const parts = num.toFixed(3).split('.');
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            return parts.join('.');
+        }
+
         function numberToArabic(num) {
             const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
             const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
@@ -564,9 +570,19 @@
 
                 if (n >= 1000) {
                     const thousands = Math.floor(n / 1000);
-                    if (thousands === 1) result += 'ألف';
-                    else if (thousands === 2) result += 'ألفان';
-                    else result += ones[thousands] + ' آلاف';
+                    if (thousands === 1) {
+                        result += 'ألف';
+                    } else if (thousands === 2) {
+                        result += 'ألفان';
+                    } else if (thousands >= 3 && thousands <= 10) {
+                        result += ones[thousands] + ' آلاف';
+                    } else if (thousands >= 11 && thousands <= 99) {
+                        // Handle tens of thousands
+                        result += convertInteger(thousands) + ' ألف';
+                    } else if (thousands >= 100) {
+                        // Handle hundreds of thousands
+                        result += convertInteger(thousands) + ' ألف';
+                    }
                     needsWaw = true;
                     n %= 1000;
                 }
@@ -674,7 +690,7 @@
                         rowCounter++,
                         finalDescription,
                         group.quantity,
-                        group.price.toFixed(3)
+                        formatNumber(group.price)
                     ]);
                     subtotal += group.price;
                 });
@@ -725,7 +741,7 @@
 
                 const totalRowIndex = invoiceData.length;
                 invoiceData.push(['', '', '', '', '', '']);
-                invoiceData.push(['', subtotal.toFixed(3), '', 'الاجمالي', '', '']);
+                invoiceData.push(['', formatNumber(subtotal), '', 'الاجمالي', '', '']);
                 invoiceData.push(['', '', '', '', '', '']);
                 
                 const amountWordsRowIndex = invoiceData.length;
@@ -765,7 +781,7 @@
                 // Merge cells
                 if (!invoiceSheet['!merges']) invoiceSheet['!merges'] = [];
                 
-                    //Date Merge
+                //Date Merge
                 invoiceSheet['!merges'].push({
                     s: { r: dateRowIndex, c: 2},
                     e: {r: dateRowIndex, c: 1}
@@ -782,17 +798,17 @@
                     e: { r: brothersRowIndex, c: 4 }
                 });
                 
-               // Merge office ID (columns B-C, which are index 1-2)
-invoiceSheet['!merges'].push({
-    s: { r: greetingRowIndex, c: 1 },
-    e: { r: greetingRowIndex, c: 2 }
-});
+                // Merge office ID (columns B-C, which are index 1-2)
+                invoiceSheet['!merges'].push({
+                    s: { r: greetingRowIndex, c: 1 },
+                    e: { r: greetingRowIndex, c: 2 }
+                });
 
-// Merge greeting (columns D-E, which are index 3-4)
-invoiceSheet['!merges'].push({
-    s: { r: greetingRowIndex, c: 3 },
-    e: { r: greetingRowIndex, c: 4 }
-});
+                // Merge greeting (columns D-E, which are index 3-4)
+                invoiceSheet['!merges'].push({
+                    s: { r: greetingRowIndex, c: 3 },
+                    e: { r: greetingRowIndex, c: 4 }
+                });
                 
                 // Merge "نأمل منكم سداد..." (columns D-E, which are index 3-4)
                 invoiceSheet['!merges'].push({
@@ -841,7 +857,7 @@ invoiceSheet['!merges'].push({
                     office.arabicName,
                     office.services.length,
                     monthsText,
-                    subtotal.toFixed(3),
+                    formatNumber(subtotal),
                     'تم إنشاء الفاتورة'
                 ]);
             });
@@ -897,12 +913,12 @@ invoiceSheet['!merges'].push({
                     <td>${office.arabicName}</td>
                     <td>${Object.keys(groupedServices).length}</td>
                     <td>${monthsDisplay}</td>
-                    <td>${total.toFixed(3)} د.ل</td>
+                    <td>${formatNumber(total)} د.ل</td>
                 </tr>`;
             });
             
             html += `</tbody></table>`;
-            html += `<h4>المبلغ الإجمالي الكلي: ${totalAmount.toFixed(3)} د.ل</h4>`;
+            html += `<h4>المبلغ الإجمالي الكلي: ${formatNumber(totalAmount)} د.ل</h4>`;
             html += `</div>`;
             
             summaryContent.innerHTML = html;
