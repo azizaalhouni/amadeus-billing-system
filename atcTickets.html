@@ -187,6 +187,26 @@
             font-size: 1.5rem;
             font-weight: bold;
             color: #667eea;
+            cursor: pointer;
+            transition: color 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .office-id:hover {
+            color: #4c51bf;
+            text-decoration: underline;
+        }
+
+        .office-id::after {
+            content: "📥";
+            font-size: 1rem;
+            opacity: 0.6;
+        }
+
+        .office-id:hover::after {
+            opacity: 1;
         }
 
         .office-date {
@@ -273,14 +293,14 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <h1>🎫 ATC Ticket Numbers by Office ID</h1>
+            <h1>ATC Ticket Numbers by Office ID</h1>
             <p class="subtitle">استخراج أرقام التذاكر حسب رقم المكتب</p>
         </div>
 
         <!-- Upload Section -->
         <div class="upload-section">
             <div class="upload-header">
-                <span style="font-size: 1.5rem;">📤</span>
+                <span style="font-size: 1.5rem;"></span>
                 <h2>Upload Report</h2>
             </div>
             
@@ -305,23 +325,21 @@
                     <p id="resultsSubtitle"></p>
                 </div>
                 <button class="download-btn" onclick="downloadCSV()">
-                    <span>⬇️</span>
                     Download CSV
                 </button>
                 <button class="download-btn" onclick="downloadExcel()" style="background: #007bff; margin-left: 10px;">
-                    <span>📊</span>
                     Download Excel
                 </button>
             </div>
             
-            <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search by Office ID..." onkeyup="filterOffices()">
+            <input type="text" id="searchBox" class="search-box" placeholder="Search by Office ID..." onkeyup="filterOffices()">
             
             <div id="officesGrid" class="offices-grid"></div>
         </div>
 
         <!-- Empty State -->
         <div id="emptyState" class="empty-state active">
-            <div style="font-size: 4rem;">📋</div>
+            <div style="font-size: 4rem;"></div>
             <h3>No Data Yet</h3>
             <p>Upload an ATC report file or paste the data to get started</p>
         </div>
@@ -382,7 +400,7 @@
                 
                 // Look for office codes and ticket numbers
                 // Pattern: 5 letters + 3 alphanumeric + anything after
-                const officePattern = /([A-Z]{5}[A-Z0-9]{4})(.{10,})/;
+                const officePattern = /([A-Z]{5}[A-Z0-9]{3})(.{10,})/;
                 const match = line.match(officePattern);
                 
                 if (match) {
@@ -451,7 +469,9 @@
                 card.innerHTML = `
                     <div class="office-header">
                         <div>
-                            <div class="office-id">${office.officeId}</div>
+                            <div class="office-id" onclick="downloadOfficeExcel('${office.officeId}')" title="Click to download Excel for this office">
+                                ${office.officeId}
+                            </div>
                             <div class="office-date">${office.month}/${office.year}</div>
                         </div>
                         <div class="ticket-count">${office.count} tickets</div>
@@ -493,6 +513,45 @@
             a.download = `atc_tickets_by_office_${Date.now()}.csv`;
             a.click();
             window.URL.revokeObjectURL(url);
+        }
+
+        // Download Excel for individual office
+        function downloadOfficeExcel(officeId) {
+            // Find the office data
+            const office = processedData.find(o => o.officeId === officeId);
+            if (!office) return;
+
+            // Create detailed data for this office
+            const detailedData = office.tickets.map((ticket, index) => ({
+                'Row': index + 1,
+                'Office ID': office.officeId,
+                'Month': office.month,
+                'Year': office.year,
+                'Ticket Number': ticket
+            }));
+
+            // Create summary data
+            const summaryData = [{
+                'Office ID': office.officeId,
+                'Month': office.month,
+                'Year': office.year,
+                'Total Tickets': office.count,
+                'All Ticket Numbers': office.tickets.join(', ')
+            }];
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+
+            // Add summary sheet
+            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+
+            // Add tickets sheet
+            const ticketsWs = XLSX.utils.json_to_sheet(detailedData);
+            XLSX.utils.book_append_sheet(wb, ticketsWs, 'Tickets');
+
+            // Download
+            XLSX.writeFile(wb, `${office.officeId}_tickets_${office.month}_${office.year}.xlsx`);
         }
 
         // Download Excel
