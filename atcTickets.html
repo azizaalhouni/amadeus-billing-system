@@ -409,7 +409,7 @@
                     
                     // Extract last 10 characters from the line
                     const lineEnd = line.trim();
-                    const ticketNumber = lineEnd.slice(-10); // Last 10 digits
+                    const ticketNumber = lineEnd.slice(-14); // Last 10 digits
                     
                     if (!dataMap[officeId]) {
                         dataMap[officeId] = {
