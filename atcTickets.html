@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ATC Ticket Numbers by Office ID</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: #666;
+            direction: rtl;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .upload-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .upload-header h2 {
+            color: #333;
+            font-size: 1.5rem;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+
+        .file-input:hover {
+            border-color: #667eea;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: monospace;
+            resize: vertical;
+            min-height: 120px;
+            margin-top: 1rem;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .results-section {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .results-info h2 {
+            color: #333;
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .results-info p {
+            color: #666;
+        }
+
+        .download-btn {
+            background: #28a745;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: background 0.3s;
+        }
+
+        .download-btn:hover {
+            background: #218838;
+        }
+
+        .download-btn:hover[style*="007bff"] {
+            background: #0056b3 !important;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            margin-top: 1rem;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .offices-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .office-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .office-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .office-id {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .office-date {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .ticket-count {
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .tickets-container {
+            margin-top: 1rem;
+        }
+
+        .tickets-label {
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 0.5rem;
+        }
+
+        .tickets-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        .ticket-item {
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            background: #f8f9fa;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .empty-state {
+            background: white;
+            padding: 4rem 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            display: none;
+        }
+
+        .empty-state.active {
+            display: block;
+        }
+
+        .empty-state h3 {
+            color: #666;
+            font-size: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .empty-state p {
+            color: #999;
+            margin-top: 0.5rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .offices-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎫 ATC Ticket Numbers by Office ID</h1>
+            <p class="subtitle">استخراج أرقام التذاكر حسب رقم المكتب</p>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div class="upload-header">
+                <span style="font-size: 1.5rem;">📤</span>
+                <h2>Upload Report</h2>
+            </div>
+            
+            <input type="file" id="fileInput" accept=".txt,.csv,.dat" class="file-input">
+            
+            <div style="margin-top: 1.5rem;">
+                <label style="display: block; font-weight: 500; color: #555; margin-bottom: 0.5rem;">
+                    Or paste text directly:
+                </label>
+                <textarea id="textArea" placeholder="Paste your ATC report data here..."></textarea>
+                <button id="processBtn" onclick="processText()" style="margin-top: 1rem; background: #667eea; color: white; padding: 0.75rem 1.5rem; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                    Process Data
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results-section">
+            <div class="results-header">
+                <div class="results-info">
+                    <h2 id="resultsTitle">Results</h2>
+                    <p id="resultsSubtitle"></p>
+                </div>
+                <button class="download-btn" onclick="downloadCSV()">
+                    <span>⬇️</span>
+                    Download CSV
+                </button>
+                <button class="download-btn" onclick="downloadExcel()" style="background: #007bff; margin-left: 10px;">
+                    <span>📊</span>
+                    Download Excel
+                </button>
+            </div>
+            
+            <input type="text" id="searchBox" class="search-box" placeholder="🔍 Search by Office ID..." onkeyup="filterOffices()">
+            
+            <div id="officesGrid" class="offices-grid"></div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="empty-state active">
+            <div style="font-size: 4rem;">📋</div>
+            <h3>No Data Yet</h3>
+            <p>Upload an ATC report file or paste the data to get started</p>
+        </div>
+    </div>
+
+    <script>
+        let processedData = [];
+
+        // File upload handler
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                processFile(event.target.result);
+            };
+            reader.readAsText(file);
+        });
+
+        // Process text button
+        function processText() {
+            const text = document.getElementById('textArea').value;
+            if (text.trim()) {
+                processFile(text);
+            }
+        }
+
+        // Main processing function
+        function processFile(content) {
+            const lines = content.split('\n');
+            const dataMap = {};
+            
+            // Extract month and year from the report
+            let reportMonth = '';
+            let reportYear = '';
+            
+            const periodLine = lines.find(line => line.includes('*PERIOD'));
+            if (periodLine) {
+                const periodMatch = periodLine.match(/(\d{2})?([A-Z]{3})(\d{4})/);
+                if (periodMatch) {
+                    const monthAbbr = periodMatch[2];
+                    reportYear = periodMatch[3];
+                    
+                    const monthMap = {
+                        'JAN': '01', 'FEB': '02', 'MAR': '03', 'APR': '04',
+                        'MAY': '05', 'JUN': '06', 'JUL': '07', 'AUG': '08',
+                        'SEP': '09', 'OCT': '10', 'NOV': '11', 'DEC': '12'
+                    };
+                    reportMonth = monthMap[monthAbbr] || '';
+                }
+            }
+            
+            // Process each line
+            lines.forEach(line => {
+                // Skip header lines
+                if (line.startsWith('*') || !line.trim()) return;
+                
+                // Look for office codes and ticket numbers
+                // Pattern: 5 letters + 3 alphanumeric + anything after
+                const officePattern = /([A-Z]{5}[A-Z0-9]{4})(.{10,})/;
+                const match = line.match(officePattern);
+                
+                if (match) {
+                    const officeId = match[1]; // First 8 characters (e.g., BENLY220)
+                    const remaining = match[2]; // Everything after office ID
+                    
+                    // Extract last 10 characters from the line
+                    const lineEnd = line.trim();
+                    const ticketNumber = lineEnd.slice(-10); // Last 10 digits
+                    
+                    if (!dataMap[officeId]) {
+                        dataMap[officeId] = {
+                            officeId: officeId,
+                            tickets: [],
+                            count: 0,
+                            month: reportMonth,
+                            year: reportYear
+                        };
+                    }
+                    
+                    dataMap[officeId].tickets.push(ticketNumber);
+                    dataMap[officeId].count++;
+                }
+            });
+            
+            // Convert to array and sort by office ID
+            processedData = Object.values(dataMap).sort((a, b) => 
+                a.officeId.localeCompare(b.officeId)
+            );
+            
+            displayResults();
+        }
+
+        // Display results
+        function displayResults() {
+            if (processedData.length === 0) {
+                document.getElementById('emptyState').classList.add('active');
+                document.getElementById('resultsSection').classList.remove('active');
+                return;
+            }
+
+            document.getElementById('emptyState').classList.remove('active');
+            document.getElementById('resultsSection').classList.add('active');
+
+            const totalTickets = processedData.reduce((sum, office) => sum + office.count, 0);
+            
+            document.getElementById('resultsTitle').textContent = `Results: ${processedData.length} Offices`;
+            document.getElementById('resultsSubtitle').textContent = `Total Tickets: ${totalTickets}`;
+
+            renderOffices(processedData);
+        }
+
+        // Render office cards
+        function renderOffices(data) {
+            const grid = document.getElementById('officesGrid');
+            grid.innerHTML = '';
+
+            data.forEach(office => {
+                const card = document.createElement('div');
+                card.className = 'office-card';
+                
+                const ticketsList = office.tickets.map(ticket => 
+                    `<div class="ticket-item">${ticket}</div>`
+                ).join('');
+
+                card.innerHTML = `
+                    <div class="office-header">
+                        <div>
+                            <div class="office-id">${office.officeId}</div>
+                            <div class="office-date">${office.month}/${office.year}</div>
+                        </div>
+                        <div class="ticket-count">${office.count} tickets</div>
+                    </div>
+                    <div class="tickets-container">
+                        <div class="tickets-label">Ticket Numbers:</div>
+                        <div class="tickets-list">
+                            ${ticketsList}
+                        </div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+        }
+
+        // Filter offices by search
+        function filterOffices() {
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+            const filtered = processedData.filter(office => 
+                office.officeId.toLowerCase().includes(searchTerm)
+            );
+            renderOffices(filtered);
+        }
+
+        // Download CSV
+        function downloadCSV() {
+            let csv = 'Office ID,Month,Year,Ticket Count,Ticket Numbers\n';
+            
+            processedData.forEach(office => {
+                const tickets = office.tickets.join('; ');
+                csv += `${office.officeId},${office.month},${office.year},${office.count},"${tickets}"\n`;
+            });
+            
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `atc_tickets_by_office_${Date.now()}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        // Download Excel
+        function downloadExcel() {
+            // Create summary sheet data
+            const summaryData = processedData.map(office => ({
+                'Office ID': office.officeId,
+                'Month': office.month,
+                'Year': office.year,
+                'Ticket Count': office.count,
+                'Ticket Numbers': office.tickets.join(', ')
+            }));
+
+            // Create detailed sheet data (one row per ticket)
+            const detailedData = [];
+            processedData.forEach(office => {
+                office.tickets.forEach(ticket => {
+                    detailedData.push({
+                        'Office ID': office.officeId,
+                        'Month': office.month,
+                        'Year': office.year,
+                        'Ticket Number': ticket
+                    });
+                });
+            });
+
+            // Create workbook
+            const wb = XLSX.utils.book_new();
+
+            // Add summary sheet
+            const summaryWs = XLSX.utils.json_to_sheet(summaryData);
+            XLSX.utils.book_append_sheet(wb, summaryWs, 'Summary');
+
+            // Add detailed sheet
+            const detailedWs = XLSX.utils.json_to_sheet(detailedData);
+            XLSX.utils.book_append_sheet(wb, detailedWs, 'Detailed');
+
+            // Download
+            XLSX.writeFile(wb, `atc_tickets_by_office_${Date.now()}.xlsx`);
+        }
+    </script>
+</body>
+</html>
