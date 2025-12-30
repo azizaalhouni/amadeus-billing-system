@@ -294,6 +294,39 @@
             color: #856404;
         }
 
+        .bill-number-section {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: #e7f3ff;
+            border: 2px solid #007cba;
+            border-radius: 8px;
+        }
+
+        .bill-number-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 1.1rem;
+            border: 2px solid #007cba;
+            border-radius: 6px;
+            text-align: center;
+            direction: ltr;
+            font-weight: bold;
+        }
+
+        .bill-number-input:focus {
+            outline: none;
+            border-color: #005a87;
+            box-shadow: 0 0 0 3px rgba(0, 124, 186, 0.1);
+        }
+
+        .bill-number-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #007cba;
+            font-size: 1.1rem;
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 1rem;
@@ -443,6 +476,23 @@
         <p class="description">دمج ملفات متعددة من كل نوع تقرير مع إضافة معلومات الأشهر للفواتير</p>
         <p class="description">Consolidate multiple files with automatic month range extraction for invoices</p>
         
+           <!-- Bill Number Section - NOW VISIBLE BEFORE PROCESSING -->
+            <div class="bill-number-section">
+                <label class="bill-number-label">رقم الفاتورة - Bill Number</label>
+                <input 
+                    type="text" 
+                    id="billNumberInput" 
+                    class="bill-number-input" 
+                    placeholder="أدخل رقم الفاتورة (مثال: 123)"
+                    maxlength="10"
+                />
+                <p style="margin-top: 0.5rem; color: #666; font-size: 0.9rem; text-align: center;">
+                    سيتم استخدام هذا الرقم في جميع الفواتير المنشأة
+                </p>
+                <p style="margin-top: 0.5rem; color: #007cba; font-size: 0.9rem; text-align: center; font-weight: 600;">
+                    يمكنك إدخال رقم الفاتورة الآن أو بعد معالجة الملفات
+                </p>
+            </div>
         <div class="upload-section">
             <!-- Bills Master File -->
             <div class="file-group">
@@ -534,6 +584,8 @@
                 <div class="month-info" id="mpeMonths"></div>
             </div>
 
+         
+
             <div class="progress" id="progressDiv">
                 <p id="progressText">جاري معالجة الملفات...</p>
             </div>
@@ -622,6 +674,7 @@
         const processBtn = document.getElementById('processBtn');
         const downloadBtn = document.getElementById('downloadBtn');
         const generateInvoicesBtn = document.getElementById('generateInvoicesBtn');
+        const billNumberInput = document.getElementById('billNumberInput');
         const progressDiv = document.getElementById('progressDiv');
         const progressText = document.getElementById('progressText');
         const resultsSection = document.getElementById('resultsSection');
@@ -1174,60 +1227,82 @@
                 return;
             }
 
-            generateOfficeInvoicesWithMonths();
+            // Get bill number from input
+            const billNumber = billNumberInput.value.trim();
+            if (!billNumber) {
+                alert('يرجى إدخال رقم الفاتورة أولاً');
+                billNumberInput.focus();
+                return;
+            }
+
+            generateOfficeInvoicesWithMonths(billNumber);
         });
 
         // Function to convert number to Arabic words
-        function numberToArabic(num) {
-            const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
-            const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-            const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
-            const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+// Function to convert number to Arabic words
+function numberToArabic(num) {
+    const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+    const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const teens = ['عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
 
-            if (num === 0) return 'صفر';
-            if (num < 0) return 'سالب ' + numberToArabic(-num);
+    if (num === 0) return 'صفر';
+    if (num < 0) return 'سالب ' + numberToArabic(-num);
 
-            let result = '';
+    let result = '';
 
-            // Handle thousands
-            if (num >= 1000) {
-                const thousands = Math.floor(num / 1000);
-                if (thousands === 1) {
-                    result += 'ألف ';
-                } else if (thousands === 2) {
-                    result += 'ألفان ';
-                } else if (thousands <= 10) {
-                    result += ones[thousands] + ' آلاف ';
-                } else {
-                    result += numberToArabic(thousands) + ' ألف ';
-                }
-                num %= 1000;
-            }
-
-            // Handle hundreds
-            if (num >= 100) {
-                result += hundreds[Math.floor(num / 100)] + ' ';
-                num %= 100;
-            }
-
-            // Handle tens and ones - ones come before tens in Arabic
-            if (num >= 20) {
-                const onesDigit = num % 10;
-                const tensDigit = Math.floor(num / 10);
-                
-                if (onesDigit !== 0) {
-                    result += ones[onesDigit] + ' و' + tens[tensDigit];
-                } else {
-                    result += tens[tensDigit];
-                }
-            } else if (num >= 10) {
-                result += teens[num - 10];
-            } else if (num > 0) {
-                result += ones[num];
-            }
-
-            return result.trim();
+    // Handle thousands
+    if (num >= 1000) {
+        const thousands = Math.floor(num / 1000);
+        if (thousands === 1) {
+            result += 'ألف ';
+        } else if (thousands === 2) {
+            result += 'ألفان ';
+        } else if (thousands <= 10) {
+            result += ones[thousands] + ' آلاف ';
+        } else {
+            result += numberToArabic(thousands) + ' ألف ';
         }
+        num %= 1000;
+        
+        // Add "و" if there's a remainder
+        if (num > 0) {
+            result += 'و ';
+        }
+    }
+
+    // Handle hundreds
+    if (num >= 100) {
+        result += hundreds[Math.floor(num / 100)];
+        num %= 100;
+        
+        // Add "و" if there's a remainder
+        if (num > 0) {
+            result += ' و ';
+        } else {
+            result += ' ';
+        }
+    }
+
+    // Handle tens and ones - ones come before tens in Arabic
+    if (num >= 20) {
+        const onesDigit = num % 10;
+        const tensDigit = Math.floor(num / 10);
+        
+        if (onesDigit !== 0) {
+            result += ones[onesDigit] + ' و' + tens[tensDigit];
+        } else {
+            result += tens[tensDigit];
+        }
+    } else if (num >= 10) {
+        result += teens[num - 10];
+    } else if (num > 0) {
+        result += ones[num];
+    }
+
+    return result.trim();
+}
+        
 
         function getCurrentDateArabic() {
             const date = new Date();
@@ -1243,7 +1318,7 @@
             return `${day} ${months[month - 1]} ${year}`;
         }
 
-        function generateOfficeInvoicesWithMonths() {
+        function generateOfficeInvoicesWithMonths(billNumber) {
             try {
                 progressDiv.style.display = 'block';
                 progressText.textContent = 'جاري إنشاء فواتير المكاتب الفردية مع معلومات الأشهر...';
@@ -1263,11 +1338,13 @@
                 debugContent.innerHTML += `<p>إنشاء فواتير لـ ${officesWithTransactions.length} مكتب مع معلومات الأشهر...</p>`;
 
                 // Create invoice sheet for each office
-                officesWithTransactions.forEach((office, index) => {
-                    progressText.textContent = `إنشاء فاتورة للمكتب ${office.officeId} (${index + 1}/${officesWithTransactions.length})...`;
-                    
-                    const currentDate = getCurrentDateArabic();
-                    const currentYear = new Date().getFullYear();
+               officesWithTransactions.forEach((office, index) => {
+    progressText.textContent = `إنشاء فاتورة للمكتب ${office.officeId} (${index + 1}/${officesWithTransactions.length})...`;
+    
+    const currentDate = getCurrentDateArabic();
+    const currentYear = new Date().getFullYear();
+    const currentBillNumber = parseInt(billNumber) + index; // Auto-increment bill number
+
                     
                     let subtotal = 0;
                     let rowCounter = 1;
@@ -1330,34 +1407,55 @@
                     }
 
                     const totalCost = subtotal;
-                    const totalInWords = numberToArabic(Math.floor(totalCost)) + ' دينار ليبي';
+// Split total into dinars and fils (dirhams)
+const dinars = Math.floor(totalCost);
+const fils = Math.round((totalCost - dinars) * 1000); // Get 3 decimal places as fils
 
-                    // Create Arabic invoice data with RTL layout
+let totalInWords = '';
+if (dinars > 0) {
+    totalInWords = numberToArabic(dinars) + ' دينارلاغير  ';
+}
+
+if (fils > 0) {
+    if (dinars > 0) {
+        totalInWords += ' و ' + fils.toString().padStart(3, '0') + ' درهم لاغير';
+    } else {
+        totalInWords = fils.toString().padStart(3, '0') + ' درهم لاغير';
+    }
+} else if (dinars === 0) {
+    totalInWords = 'صفر دينار ليبي';
+}
+                    // Create Arabic invoice data with RTL layout and bill number
                     const invoiceData = [
                         ['', '', '', '', '', ''],
                         ['', '', '', '', '', ''],
-                        ['', '', '', 'شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', ''],
+                        ['شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', '', '', '', ''],
                         ['', '', '', '', '', ''],
-                        ['', '', `التاريخ: ${currentDate}`, '', '', ''],
+                        [`التاريخ: ${currentDate}`, '', '', '', '', ''],
                         ['', '', '', '', '', ''],
-                        ['', '', '', '', `الاخوة / ${office.officeArabicName}`, ''],
+                          ['', '', `الاخوة / ${office.officeArabicName}`, '', ''],
                         ['', '', '', '', '', ''],
-                        ['', '', `رقم الآياتا: ${office.iataNumber}`, '', 'بعد التحية ،،،', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '', '', '', '', ''],
-                        ['', '',`فاتورة رقم: _____ / ${currentYear}`, '', '',''],
-                        ['', '', '', '', '', ''],
-                        ['', '', '', '','نأمل منكم سداد قيمة الفاتورة المبينة أدناه :', ''],
+                        [`رقم الآياتا: ${office.iataNumber}`, '',  'بعد التحية ،،،', '',''],
                         ['', '', '', '', '', ''],
                         ['', '', '', '', '', ''],
-                        ['', 'القيمة (د.ل)' , 'الكمية','البيان','ر.ت',''],
+                        [`فاتورة رقم: ${currentBillNumber} / ${currentYear}`, '', '', '',''],
+                        ['', '', '', '', '', ''],
+
+                        ['', '', 'نأمل منكم سداد قيمة الفاتورة المبينة أدناه :', '', ''],
+
+
+
+
+                        ['', '', '', '', '', ''],
+                        ['', '', '', '', '', ''],
+                        ['القيمة (د.ل)' , 'الكمية','البيان','ر.ت',''],
 
                         ['', '', '', '', '', '']
                     ];
 
                      serviceRows.forEach(row => {
                         invoiceData.push([
-                            '',  row[3],  // القيمة,
+                            row[3],  // القيمة,
                             row[2], // الكمية
                             row[1], // البيان (with month info)
                             row[0], // ر.ت
@@ -1367,54 +1465,108 @@
 
                     // Add totals and footer
                     invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', subtotal.toFixed(3), '', 'الاجمالي', '','']);
+                    invoiceData.push([ subtotal.toFixed(3), '', 'الاجمالي', '','']);
 
                     invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', `المبلغ بالحروف: ${totalInWords}`, '', '']);
+                    invoiceData.push(['', '', `المبلغ بالحروف: ${totalInWords}`, '', '']);
+                    invoiceData.push(['', '', '', '', '', '']);
+                    invoiceData.push(['', '', 'طريقة السداد:', '', '']);
+                    invoiceData.push([' يكون السداد نقداً أو بصك مصدق بخزينة الشركة بإسم شركة أمادييوس ليبيا للخدمات التقنية المشتركة أو بإيداع المبلغ بحساب الشركة رقم 0900003088 لدى المصرف الليبي الخارجي.', '', '', '', '', '']);
                     invoiceData.push(['', '', '', '', '', '']);
                     invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', '', 'طريقة السداد:', '']);
-                    invoiceData.push(['', '', '', '','يكون السداد نقداً أو بصك مصدق بخزينة الشركة', '']);
-                    invoiceData.push(['', '', '', '','بإسم شركة أمادييوس ليبيا للخدمات التقنية المشتركة', '']);
-                    invoiceData.push(['', '', '', '','أو بإيداع المبلغ بحساب الشركة رقم 0900003088',  '']);
-                   invoiceData.push(['', '', '',  '','لدى المصرف الليبي الخارجي.', '']);
+                    invoiceData.push(['','','والســـــــــــــــــــ عليكم ــــــــــــــــــلام', '', '']);
                     invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', 'والســـــــــــــــــــ عليكم ــــــــــــــــــلام', '', '']);
-                    invoiceData.push(['', '', '', '', '', '']);
-                    invoiceData.push(['', '', '', '.........................', '', '']);
-                    invoiceData.push(['', '', '', 'مدير الشؤون الادارية و المالية', '', '']);
+                    invoiceData.push(['.........................', '', '', '', '', '']);
+                    invoiceData.push(['مدير الشؤون الادارية و المالية', '', '', '', '', '']);
 
                     // Create worksheet
                     const invoiceSheet = XLSX.utils.aoa_to_sheet(invoiceData);
+
+                    
                     
                     if (!invoiceSheet['!ref']) invoiceSheet['!ref'] = 'A1:F35';
                     
                     // Set column widths for RTL layout - INCREASED WIDTHS
                     invoiceSheet['!cols'] = [
-                        { width: 20 }, // Empty space column 1
-                        { width: 20 }, // Empty space column 2
-                        { width: 20 }, // ر.ت column
-                        { width: 80 }, // البيان column - service description (increased for month info)
-                        { width: 35 }, // الكمية column - quantity
-                        { width: 20 }  // القيمة column - cost
+                        { width: 15 }, // Empty space column 1
+                        { width: 10 }, // Empty space column 2
+                        { width: 80 }, // ر.ت column
+                        { width: 10 }, // البيان column - service description (increased for month info)
+                        { width: 10 }, // الكمية column - quantity
+                        { width: 15 }  // القيمة column - cost
                     ];
                     
-                    // Set RTL text alignment
-                    const range = XLSX.utils.decode_range(invoiceSheet['!ref']);
-                    for (let R = range.s.r; R <= range.e.r; ++R) {
-                        for (let C = range.s.c; C <= range.e.c; ++C) {
-                            const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
-                            if (!invoiceSheet[cellAddress]) continue;
-                            
-                            if (!invoiceSheet[cellAddress].s) invoiceSheet[cellAddress].s = {};
-                            invoiceSheet[cellAddress].s.alignment = {
-                                horizontal: 'right',
-                                vertical: 'center',
-                                readingOrder: 2
-                            };
-                        }
-                    }
+                    // Set up cell merges for payment method section and other full-width rows
+                    // Calculate the row numbers dynamically based on service rows
+                    const baseRowForPayment = 18 + serviceRows.length; // Base row after service rows
+                    
+                    if (!invoiceSheet['!merges']) invoiceSheet['!merges'] = [];
+                    
+                    // Merge cells for various rows (spanning columns A to E or appropriate columns)
+                    invoiceSheet['!merges'].push(
+                        // Company name row (row 2, index 2)
+                        { s: { r: 2, c: 0 }, e: { r: 2, c: 3 } },
+                        
+                        // التاريخ row (row 4) - merge columns A & B
+                        { s: { r: 4, c: 0 }, e: { r: 4, c: 1 } },
+                        
+                        // رقم الآياتا row (row 8) - merge columns A & B
+                        { s: { r: 8, c: 0 }, e: { r: 8, c: 1 } },
+                        // الاخوة row (row 6) - merge columns C & D
+                    { s: { r: 6, c: 2 }, e: { r: 6, c: 3 } },
+
+// بعد التحية row (row 8) - merge columns C & D
+{ s: { r: 8, c: 2 }, e: { r: 8, c: 3 } },
+
+// نأمل منكم row (row 13) - merge columns C & D
+        { s: { r: 13, c: 2 }, e: { r: 13, c: 3 } },
+                        
+                        // فاتورة رقم row (row 11) - merge columns A & B
+                        { s: { r: 11, c: 0 }, e: { r: 11, c: 1 } },
+                        
+                        { s: { r: baseRowForPayment + 5, c: 2 }, e: { r: baseRowForPayment + 5, c: 3 } },
+
+                        // Payment method - ALL IN ONE ROW
+                        { s: { r: baseRowForPayment + 6, c: 0 }, e: { r: baseRowForPayment + 7, c: 3 } },
+
+                        // { s: { r: baseRowForPayment + 6, c: 0 }, e: { r: baseRowForPayment + 6, c: 3 } },
+
+                        //  { s: { r: baseRowForPayment + 7, c: 0 }, e: { r: baseRowForPayment + 7, c: 3 } },
+
+                        
+                        // Signature line (.........................)
+                        { s: { r: baseRowForPayment + 11, c: 0 }, e: { r: baseRowForPayment + 11, c: 1 } },
+                        // مدير الشؤون الادارية و المالية
+                        { s: { r: baseRowForPayment + 12, c: 0 }, e: { r: baseRowForPayment + 12, c: 1} }
+                    );
+                    
+                  // Set RTL text alignment
+const range = XLSX.utils.decode_range(invoiceSheet['!ref']);
+for (let R = range.s.r; R <= range.e.r; ++R) {
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+        const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+        if (!invoiceSheet[cellAddress]) continue;
+        
+        if (!invoiceSheet[cellAddress].s) invoiceSheet[cellAddress].s = {};
+        invoiceSheet[cellAddress].s.alignment = {
+            horizontal: 'center',
+            vertical: 'center',
+            readingOrder: 2
+        };
+    }
+}
+                   // Specifically ensure the "والسلام عليكم" text is centered
+const salamRowIndex = baseRowForPayment + 9;
+const salamCellAddress = XLSX.utils.encode_cell({ r: salamRowIndex, c: 2 }); // Column C (index 2)
+if (invoiceSheet[salamCellAddress]) {
+    invoiceSheet[salamCellAddress].s = {
+        alignment: {
+            horizontal: 'center',
+            vertical: 'center',
+            readingOrder: 2
+        }
+    };
+}
 
                     // Create clean sheet name
                     const cleanOfficeId = office.officeId.replace(/[^\w\s]/gi, '').substring(0, 31);
@@ -1426,15 +1578,17 @@
                 // Create summary sheet with month information
                 const allInvoicesData = [
                     ['', 'ملخص فواتير جميع المكاتب مع الأشهر - AMADEUS SERVICES WITH MONTHS', '', '', '', '', '', ''],
+                      ['', `أرقام الفواتير: من ${billNumber} إلى ${parseInt(billNumber) + officesWithTransactions.length - 1} / ${new Date().getFullYear()}`, '', '', '', '', '', ''],
                     ['', '', '', '', '', '', '', ''],
                     ['رمز المكتب', 'اسم المكتب', 'الاسم العربي', 'رقم الآياتا', 'إجمالي العدد', 'المبلغ الإجمالي', 'أشهر الخدمات', 'الحالة'],
                     ['', '', '', '', '', '', '', '']
                 ];
 
-                officesWithTransactions.forEach(office => {
-                    const totalCost = office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost;
-                    const totalCount = office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount;
-                    
+               officesWithTransactions.forEach((office, index) => {
+        const currentBillNumber = parseInt(billNumber) + index;
+        const totalCost = office.atcCost + office.wepCost + office.pnrCost + office.mptCost + office.mpeCost; 
+            const totalCount = office.atcCount + office.wepCount + office.pnrCount + office.mptCount + office.mpeCount;
+
                     // Collect all months from all services
                     const allMonths = new Set();
                     if (office.atcMonths) office.atcMonths.forEach(m => allMonths.add(m));
@@ -1453,7 +1607,8 @@
                         totalCount.toLocaleString(),
                         totalCost.toFixed(3),
                         monthsText,
-                        'تم إنشاء الفاتورة مع معلومات الأشهر'
+                            `فاتورة رقم ${currentBillNumber}`,
+
                     ]);
                 });
 
@@ -1474,11 +1629,10 @@
                 }
 
                 progressText.textContent = 'تحميل ملف الفواتير مع معلومات الأشهر...';
-                XLSX.writeFile(invoiceWorkbook, 'فواتير_أماديوس_مع_الأشهر.xlsx');
-                
-                debugContent.innerHTML += `<p><strong>نجح!</strong> تم إنشاء ${officesWithTransactions.length} فاتورة مع معلومات الأشهر</p>`;
-                alert(`تم إنشاء ${officesWithTransactions.length} فاتورة بنجاح مع معلومات الأشهر!\nتم تحميل الملف باسم: فواتير_أماديوس_مع_الأشهر.xlsx`);
-                
+                const lastBillNumber = parseInt(billNumber) + officesWithTransactions.length - 1;
+                XLSX.writeFile(invoiceWorkbook, `فواتير_أماديوس_${billNumber}-${lastBillNumber}.xlsx`);                
+                debugContent.innerHTML += `<p><strong>نجح!</strong> تم إنشاء ${officesWithTransactions.length} فاتورة مع معلومات الأشهر ورقم الفاتورة: ${billNumber}</p>`;
+alert(`تم إنشاء ${officesWithTransactions.length} فاتورة بنجاح مع معلومات الأشهر!\nأرقام الفواتير: من ${billNumber} إلى ${lastBillNumber}\nتم تحميل الملف باسم: فواتير_أماديوس_${billNumber}-${lastBillNumber}.xlsx`);                
             } catch (error) {
                 console.error('Error generating invoices:', error);
                 alert('خطأ في إنشاء الفواتير: ' + error.message);
