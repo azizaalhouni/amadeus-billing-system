@@ -444,8 +444,8 @@
 
     <div class="container">
         <h1>مولد فواتير Excel Bills Generator</h1>
-        <p class="description">يدعم الآن ملفات متعددة مع استخراج الأشهر تلقائياً</p>
-        <p class="description">Now supports multiple files with automatic month extraction</p>
+        <p class="description">يدعم الآن ملفات متعددة مع استخراج الأشهر تلقائياً + Fee Sheets</p>
+        <p class="description">Now supports multiple files with automatic month extraction + Fee Sheets</p>
 
         <div class="upload-section">
             <div class="file-group">
@@ -607,8 +607,10 @@
           " AUTTP ": " استخدام خاصيه عرض التداكر الغير مستخدمهUnused e-Document",
           AUTTP: "استخدام خاصيه عرض التداكر الغير مستخدمهUnused e-Document",
           "AOS Std Implementation Fee": "اشتراك شهري لموقع الكتروني",
+
         };
 
+        // Process regular service sheets
         for (let [sheetName, serviceDescription] of Object.entries(
           serviceSheets
         )) {
@@ -619,6 +621,113 @@
               serviceDescription,
               sheetName
             );
+          }
+        }
+
+        // Process fee sheets (case-insensitive)
+        for (let sheetName of workbook.SheetNames) {
+          if (sheetName.toLowerCase().trim() === 'fee') {
+            progressText.textContent = `معالجة Fee Sheet من ${file.name}...`;
+            processFeeSheet(workbook.Sheets[sheetName], sheetName);
+          }
+        }
+      }
+
+      function processFeeSheet(sheet, sheetName) {
+        const data = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: "" });
+
+        // Extract month from first row header
+        let monthNumber = "";
+        if (data.length > 0 && data[0][0]) {
+          monthNumber = extractMonthFromHeader(data[0][0].toString());
+        }
+
+        // Find header row (contains "Office ID")
+        let headerRowIndex = -1;
+        for (let i = 0; i < data.length; i++) {
+          const row = data[i];
+          for (let j = 0; j < row.length; j++) {
+            if (row[j] && row[j].toString().includes("Office ID")) {
+              headerRowIndex = i;
+              break;
+            }
+          }
+          if (headerRowIndex !== -1) break;
+        }
+
+        if (headerRowIndex === -1) {
+          console.log("No header row found in fee sheet");
+          return;
+        }
+
+        const headers = data[headerRowIndex];
+        const officeIdIndex = headers.findIndex(h => h && h.toString().includes("Office ID"));
+        const companyNameIndex = headers.findIndex(h => h && (h.toString().includes("Company Name") || h.toString() === "Company Name"));
+        const arabicNameIndex = headers.findIndex(h => h && h.toString().includes("اسم الشركة"));
+        const qtyIndex = headers.findIndex(h => h && (h.toString().includes("الكمية") || h.toString().includes("Qty")));
+        const priceIndex = headers.findIndex(h => h && (h.toString().includes("مجموع البيع") || h.toString().includes("Sales Price")));
+
+        console.log(`Fee Sheet - Header Row: ${headerRowIndex}, OfficeID: ${officeIdIndex}, Qty: ${qtyIndex}, Price: ${priceIndex}`);
+
+        // Determine service description from row 4 (index 3)
+       let feeServiceDescription = "استخدام خاصيه Web Services maintenance";
+        if (data.length > 3 && data[3][1]) {
+          const originalDescription = data[3][1].toString().trim();
+          feeServiceDescription = `استخدام خاصيه ${originalDescription}`;
+        }
+
+        // Process data rows
+        for (let i = headerRowIndex + 1; i < data.length; i++) {
+          const row = data[i];
+          
+          // Skip if row appears to be totals or empty
+          if (!row[officeIdIndex] || row[companyNameIndex] === "Grand Total") {
+            continue;
+          }
+
+          const officeId = row[officeIdIndex];
+          const companyName = row[companyNameIndex];
+          const arabicName = row[arabicNameIndex];
+          
+          // Get quantity - handle formulas
+          let quantity = 0;
+          if (qtyIndex >= 0 && row[qtyIndex]) {
+            quantity = typeof row[qtyIndex] === 'number' ? row[qtyIndex] : parseFloat(row[qtyIndex]) || 0;
+          }
+
+          // Get price - handle formulas
+          let price = 0;
+          if (priceIndex >= 0 && row[priceIndex]) {
+            price = typeof row[priceIndex] === 'number' ? row[priceIndex] : parseFloat(row[priceIndex]) || 0;
+          }
+
+          console.log(`Fee Row ${i}: Office=${officeId}, Qty=${quantity}, Price=${price}`);
+
+          if (!officeId || (!quantity && !price)) continue;
+
+          if (!processedData[officeId]) {
+            processedData[officeId] = {
+              officeId: officeId,
+              companyName: companyName || "غير معروف",
+              arabicName: arabicName || "غير معروف",
+              services: [],
+            };
+          }
+
+          if (quantity > 0 || price > 0) {
+            // Add month to service description
+            let descriptionWithMonth = feeServiceDescription;
+            if (monthNumber) {
+              descriptionWithMonth += ` لشهر ${monthNumber}`;
+            }
+
+            processedData[officeId].services.push({
+              description: descriptionWithMonth,
+              quantity: quantity,
+              price: price,
+              sheet: sheetName,
+              month: monthNumber,
+            });
           }
         }
       }
@@ -988,7 +1097,7 @@
 
           let totalInWords = '';
           if (dinars > 0) {
-            totalInWords = numberToArabic(dinars) + ' دينارلاغير  ';
+            totalInWords = numberToArabic(dinars);
           }
 
           if (fils > 0) {
@@ -1037,7 +1146,7 @@
 
           // Add totals and footer
           invoiceData.push(['', '', '', '', '', '']);
-          invoiceData.push([subtotal.toFixed(3), '', 'الاجمالي', '','']);
+          invoiceData.push([formatNumber(subtotal), '', 'الاجمالي', '','']);
           invoiceData.push(['', '', '', '', '', '']);
           invoiceData.push(['', '', `المبلغ بالحروف: ${totalInWords}`, '', '']);
           invoiceData.push(['', '', '', '', '', '']);
