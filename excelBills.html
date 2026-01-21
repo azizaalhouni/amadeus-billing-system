@@ -1095,19 +1095,21 @@
           const dinars = Math.floor(subtotal);
           const fils = Math.round((subtotal - dinars) * 1000);
 
-          let totalInWords = 'فقط';
+          let totalInWords = 'فقط ';
           if (dinars > 0) {
-            totalInWords = numberToArabic(dinars);
+            totalInWords += numberToArabic(dinars);
           }
 
           if (fils > 0) {
             if (dinars > 0) {
               totalInWords += ' و ' + fils.toString().padStart(3, '0') + ' درهم لاغير';
             } else {
-              totalInWords = fils.toString().padStart(3, '0') + ' درهم لاغير';
+              totalInWords += fils.toString().padStart(3, '0') + ' درهم لاغير';
             }
           } else if (dinars === 0) {
             totalInWords = 'صفر دينار ليبي';
+          }else {
+            totalInWords += ' دينار ليبي لاغير';
           }
 
           // MATCH THE EXACT LAYOUT FROM invoiceWithBillNumber.html
