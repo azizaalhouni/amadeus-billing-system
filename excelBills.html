@@ -1153,9 +1153,10 @@
           invoiceData.push(['', '', `المبلغ بالحروف: ${totalInWords}`, '', '']);
           invoiceData.push(['', '', '', '', '', '']);
           invoiceData.push(['', '', 'طريقة السداد:', '', '']);
-          invoiceData.push([' يكون السداد نقداً أو بصك مصدق بخزينة الشركة بإسم شركة أمادييوس ليبيا للخدمات التقنية المشتركة أو بإيداع المبلغ بحساب الشركة رقم 0900003088 لدى المصرف الليبي الخارجي.', '', '', '', '', '']);
-          invoiceData.push(['', '', '', '', '', '']);
-          invoiceData.push(['', '', '', '', '', '']);
+          invoiceData.push(['نقداً أو بصك مصدق بخزينة الشركة بإسم شركة أماديوس ليبيا للخدمات التقنية المشتركة', '', '', '', '', '']);
+          invoiceData.push(['أو بإيداع المبلغ بحساب الشركة رقم ( 2000848614 ) لدى مصرف الصحارى – فرع المغاربة', '', '', '', '', '']);
+          invoiceData.push(['أو تحويل عبر تطبيق الهاتف على الحساب المصرفي الدولي ( IBAN LY65006005000002000848614 )', '', '', '', '', '']);    
+                invoiceData.push(['', '', '', '', '', '']);
           invoiceData.push(['','','والســـــــــــــــــــ عليكم ــــــــــــــــــلام', '', '']);
           invoiceData.push(['', '', '', '', '', '']);
           invoiceData.push(['.........................', '', '', '', '', '']);
@@ -1197,9 +1198,11 @@
             // فاتورة رقم row (row 11) - merge columns A & B
             { s: { r: 11, c: 0 }, e: { r: 11, c: 1 } },
             { s: { r: baseRowForPayment + 5, c: 2 }, e: { r: baseRowForPayment + 5, c: 3 } },
-            // Payment method - ALL IN ONE ROW
-            { s: { r: baseRowForPayment + 6, c: 0 }, e: { r: baseRowForPayment + 7, c: 3 } },
-            // Signature line (.........................)
+           // Payment points 1, 2, 3 - each merged across all columns
+            { s: { r: baseRowForPayment + 6, c: 0 }, e: { r: baseRowForPayment + 6, c: 3 } },
+            { s: { r: baseRowForPayment + 7, c: 0 }, e: { r: baseRowForPayment + 7, c: 3 } },
+            { s: { r: baseRowForPayment + 8, c: 0 }, e: { r: baseRowForPayment + 8, c: 3 } },
+             // Signature line (.........................)
             { s: { r: baseRowForPayment + 11, c: 0 }, e: { r: baseRowForPayment + 11, c: 1 } },
             // مدير الشؤون الادارية و المالية
             { s: { r: baseRowForPayment + 12, c: 0 }, e: { r: baseRowForPayment + 12, c: 1} }
