@@ -1183,7 +1183,7 @@
                 rowCounter++,
                 finalDescription,
                 group.quantity,
-                group.price.toFixed(3),
+                formatNumber(group.price),,
               ]);
               subtotal += group.price;
             });
